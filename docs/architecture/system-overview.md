@@ -8,6 +8,9 @@ The initial architecture is a modular monolith. Boundaries should be explicit,
 but independently deployed services are deferred until a concrete scaling,
 security, reliability, or ownership need is demonstrated.
 
+The product-level arrangement of these modules and experiences is defined in
+the [product architecture](product-architecture.md).
+
 ## Product components
 
 ### Authentication Lab
