@@ -1,3 +1,6 @@
 # Generated files
 
 .migration/
+
+node_modules/
+dist/

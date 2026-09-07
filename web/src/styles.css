@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root { color: #e9f0ed; background: #101716; font-family: "Space Grotesk", sans-serif; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 85% 5%, #27483c 0, transparent 34rem), #101716; }
+main { max-width: 1100px; margin: auto; padding: 8vw 24px; }
+.hero { max-width: 720px; }
+.eyebrow, .actor, .summary, .properties span, code { font-family: "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; }
+.eyebrow { color: #b7d85e; }
+h1 { font-size: clamp(2.8rem, 7vw, 5.9rem); line-height: .95; letter-spacing: -.07em; margin: 20px 0; max-width: 800px; }
+.intro { color: #a8b9b2; font-size: 1.1rem; line-height: 1.6; max-width: 570px; }
+button { border: 0; border-radius: 99px; color: #101716; background: #b7d85e; padding: 15px 22px; font: 600 1rem "Space Grotesk"; cursor: pointer; margin-top: 14px; }
+button:disabled { opacity: .6; cursor: progress; }
+.error { color: #ff9f7a; line-height: 1.5; }
+.workspace { margin-top: 80px; background: #17211e; border: 1px solid #32423c; border-radius: 18px; overflow: hidden; }
+.summary { display: flex; gap: 18px; align-items: center; padding: 18px 22px; border-bottom: 1px solid #32423c; color: #b7d85e; }
+.summary strong { color: #e9f0ed; font-weight: 500; }.complete { margin-left: auto; color: #8bd7a4; }
+.timeline { padding: 28px 22px; }.event { display: grid; grid-template-columns: 48px 1fr; gap: 18px; padding-bottom: 28px; }.marker { color: #b7d85e; font: 500 .85rem "DM Mono"; padding-top: 4px; }.event-body { border-left: 1px solid #50665c; padding-left: 22px; }.event-head { display: flex; justify-content: space-between; gap: 18px; }.event-head code { color: #88b6a2; }.actor { color: #91a59c; }h2 { text-transform: capitalize; font-size: 1.35rem; margin: 5px 0 0; }.event p { color: #afc0b8; }.parameters { display: flex; flex-wrap: wrap; gap: 8px; }.parameters code { color: #dae8df; background: #25342f; padding: 8px; border-radius: 4px; text-transform: none; letter-spacing: 0; }.properties { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }.properties span { color: #b7d85e; border: 1px solid #52683b; border-radius: 99px; padding: 5px 8px; }
+@media (max-width: 650px) { main { padding-inline: 16px; }.event-head { display: block; }.event-head code { display: block; margin-top: 12px; }.summary { flex-wrap: wrap; }.complete { margin-left: 0; } }
