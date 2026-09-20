@@ -3,49 +3,148 @@ package oauthoidc
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 )
 
+const (
+	ScenarioSecure       = "secure"
+	ScenarioMissingState = "missing-state"
+	ScenarioMissingPKCE  = "missing-pkce"
+)
+
+var ErrUnsupportedScenario = errors.New("unsupported OAuth scenario")
+
 type Flow struct {
-	ID        string  `json:"id"`
-	Protocol  string  `json:"protocol"`
-	GrantType string  `json:"grant_type"`
-	Status    string  `json:"status"`
-	Events    []Event `json:"events"`
+	ID              string    `json:"id"`
+	Protocol        string    `json:"protocol"`
+	GrantType       string    `json:"grant_type"`
+	Status          string    `json:"status"`
+	Scenario        Scenario  `json:"scenario"`
+	Events          []Event   `json:"events"`
+	Findings        []Finding `json:"findings"`
+	LearningOutcome string    `json:"learning_outcome"`
+}
+
+type Scenario struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Secure      bool   `json:"secure"`
+}
+
+type Finding struct {
+	Severity    string `json:"severity"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Mitigation  string `json:"mitigation"`
+}
+
+type Explanation struct {
+	Heading      string `json:"heading"`
+	WhatHappened string `json:"what_happened"`
+	WhyItMatters string `json:"why_it_matters"`
 }
 
 type Event struct {
-	Sequence          int      `json:"sequence"`
-	Actor             string   `json:"actor"`
-	Type              string   `json:"type"`
-	Method            string   `json:"method"`
-	URI               string   `json:"uri"`
-	Parameters        []string `json:"parameters,omitempty"`
-	SecurityProperties []string `json:"security_properties"`
-	Outcome           string   `json:"outcome"`
-	Timestamp         string   `json:"timestamp"`
+	Sequence           int         `json:"sequence"`
+	Actor              string      `json:"actor"`
+	Type               string      `json:"type"`
+	Method             string      `json:"method"`
+	URI                string      `json:"uri"`
+	Parameters         []string    `json:"parameters,omitempty"`
+	SecurityProperties []string    `json:"security_properties"`
+	Outcome            string      `json:"outcome"`
+	Explanation        Explanation `json:"explanation"`
+	Timestamp          string      `json:"timestamp"`
+}
+
+func Scenarios() []Scenario {
+	return []Scenario{
+		{ID: ScenarioSecure, Name: "Secure reference flow", Description: "State and PKCE protect the authorization-code exchange.", Secure: true},
+		{ID: ScenarioMissingState, Name: "Missing state", Description: "A callback is injected without the client validating state.", Secure: false},
+		{ID: ScenarioMissingPKCE, Name: "Missing PKCE", Description: "An intercepted authorization code can be redeemed without a verifier.", Secure: false},
+	}
 }
 
 func NewAuthorizationCodeFlow(now time.Time) (Flow, error) {
+	return NewAuthorizationCodeFlowForScenario(ScenarioSecure, now)
+}
+
+func NewAuthorizationCodeFlowForScenario(scenarioID string, now time.Time) (Flow, error) {
 	flowID, err := randomID("flow")
 	if err != nil {
 		return Flow{}, err
 	}
-	return Flow{
-		ID:        flowID,
-		Protocol:  "OAuth 2.0",
-		GrantType: "authorization_code",
-		Status:    "completed",
-		Events: []Event{
-			{1, "client", "authorization_requested", "GET", "/authorize", []string{"response_type=code", "client_id=demo-client", "redirect_uri=http://localhost:5173/callback", "scope=read:profile", "state=••••••••", "code_challenge=••••••••", "code_challenge_method=S256"}, []string{"exact redirect URI", "state", "PKCE S256"}, "request accepted", now.Format(time.RFC3339)},
-			{2, "authorization_server", "user_authenticated", "POST", "/login", []string{"username=learner"}, []string{"local demo identity"}, "demo user authenticated", now.Add(time.Second).Format(time.RFC3339)},
-			{3, "resource_owner", "consent_granted", "POST", "/consent", []string{"scope=read:profile"}, []string{"explicit consent"}, "scope approved", now.Add(2 * time.Second).Format(time.RFC3339)},
-			{4, "authorization_server", "code_issued", "302", "/authorize/callback", []string{"code=••••••••", "state=••••••••"}, []string{"short-lived code", "client binding", "redirect URI binding"}, "redirect returned to client", now.Add(3 * time.Second).Format(time.RFC3339)},
-			{5, "client", "code_redeemed", "POST", "/token", []string{"grant_type=authorization_code", "code=••••••••", "redirect_uri=http://localhost:5173/callback", "code_verifier=omitted"}, []string{"single-use code", "PKCE verifier", "protected channel"}, "code accepted and invalidated", now.Add(4 * time.Second).Format(time.RFC3339)},
-			{6, "authorization_server", "access_token_issued", "200", "/token", []string{"token_type=Bearer", "access_token=••••••••", "expires_in=600", "scope=read:profile"}, []string{"short-lived access token", "redacted secret"}, "token response returned", now.Add(5 * time.Second).Format(time.RFC3339)},
-		},
-	}, nil
+
+	scenario, ok := scenarioByID(scenarioID)
+	if !ok {
+		return Flow{}, fmt.Errorf("%w: %s", ErrUnsupportedScenario, scenarioID)
+	}
+
+	flow := Flow{ID: flowID, Protocol: "OAuth 2.0", GrantType: "authorization_code", Scenario: scenario}
+	switch scenarioID {
+	case ScenarioSecure:
+		flow.Status = "completed"
+		flow.Events = secureEvents(now)
+		flow.LearningOutcome = "State binds the callback to the browser session, and PKCE binds the code to the client that started the flow."
+	case ScenarioMissingState:
+		flow.Status = "blocked"
+		flow.Events = missingStateEvents(now)
+		flow.Findings = []Finding{{Severity: "high", Title: "Login CSRF risk", Description: "The client accepted a callback without proving it belongs to the browser session that began the request.", Mitigation: "Generate an unpredictable state value, store it in the client session, and reject callbacks with a missing or mismatched value."}}
+		flow.LearningOutcome = "PKCE does not replace state. State protects the browser-facing callback from login CSRF."
+	case ScenarioMissingPKCE:
+		flow.Status = "completed_with_finding"
+		flow.Events = missingPKCEEvents(now)
+		flow.Findings = []Finding{{Severity: "high", Title: "Authorization-code interception risk", Description: "The authorization code was not bound to a PKCE verifier, allowing an attacker to redeem an intercepted code.", Mitigation: "Require an S256 code challenge at authorization time and validate its verifier before issuing tokens."}}
+		flow.LearningOutcome = "State protects the callback. PKCE protects the authorization code itself, especially for public clients."
+	}
+	return flow, nil
+}
+
+func scenarioByID(id string) (Scenario, bool) {
+	for _, scenario := range Scenarios() {
+		if scenario.ID == id {
+			return scenario, true
+		}
+	}
+	return Scenario{}, false
+}
+
+func secureEvents(now time.Time) []Event {
+	return []Event{
+		event(1, "client", "authorization_requested", "GET", "/authorize", []string{"response_type=code", "client_id=demo-client", "redirect_uri=http://localhost:5173/callback", "scope=read:profile", "state=********", "code_challenge=********", "code_challenge_method=S256"}, []string{"exact redirect URI", "state", "PKCE S256"}, "request accepted", "The client starts the authorization request", "The client sends its identity, requested scope, redirect URI, state, and an S256 PKCE challenge to the authorization server.", "State ties a later callback to this browser session. The PKCE challenge makes the code useless without the verifier.", now),
+		event(2, "authorization_server", "user_authenticated", "POST", "/login", []string{"username=learner"}, []string{"local demo identity"}, "demo user authenticated", "The authorization server authenticates the resource owner", "The local demo authorization server verifies the learner before it can ask for consent.", "The client never receives the user password; authentication occurs at the authorization server.", now.Add(time.Second)),
+		event(3, "resource_owner", "consent_granted", "POST", "/consent", []string{"scope=read:profile"}, []string{"explicit consent"}, "scope approved", "The resource owner approves the requested access", "The learner grants the client the read:profile scope.", "OAuth delegates a limited scope of access instead of sharing the user's credentials.", now.Add(2*time.Second)),
+		event(4, "authorization_server", "code_issued", "302", "/authorize/callback", []string{"code=********", "state=********"}, []string{"short-lived code", "client binding", "redirect URI binding"}, "redirect returned to client", "A short-lived code returns through the browser", "The server redirects the browser to the registered callback with a single-use code and the original state value.", "The client must compare state before accepting the response. The code is not yet an access token.", now.Add(3*time.Second)),
+		event(5, "client", "code_redeemed", "POST", "/token", []string{"grant_type=authorization_code", "code=********", "redirect_uri=http://localhost:5173/callback", "code_verifier=omitted"}, []string{"single-use code", "PKCE verifier", "protected channel"}, "code accepted and invalidated", "The client exchanges its code privately", "The client sends the code and its PKCE verifier directly to the token endpoint. The trace omits the reusable verifier.", "The server validates the verifier and invalidates the code, preventing a replay.", now.Add(4*time.Second)),
+		event(6, "authorization_server", "access_token_issued", "200", "/token", []string{"token_type=Bearer", "access_token=********", "expires_in=600", "scope=read:profile"}, []string{"short-lived access token", "redacted secret"}, "token response returned", "The authorization server issues a limited access token", "The client receives a short-lived bearer token for the approved scope. Its value is masked before it reaches the explorer.", "Access tokens are credentials. Traces should expose their role and lifetime without leaking usable values.", now.Add(5*time.Second)),
+	}
+}
+
+func missingStateEvents(now time.Time) []Event {
+	events := secureEvents(now)
+	events[0].Parameters = []string{"response_type=code", "client_id=demo-client", "redirect_uri=http://localhost:5173/callback", "scope=read:profile", "code_challenge=********", "code_challenge_method=S256"}
+	events[0].SecurityProperties = []string{"exact redirect URI", "PKCE S256", "state missing"}
+	events[0].Outcome = "request accepted without state"
+	events[0].Explanation = Explanation{Heading: "The client starts without callback binding", WhatHappened: "The client omits state from its authorization request.", WhyItMatters: "Without state, the client cannot prove that a callback belongs to the browser session that began this flow."}
+	return append(events[:4], event(5, "client", "callback_rejected", "302", "/authorize/callback", []string{"code=********", "state=missing"}, []string{"callback validation", "state missing"}, "login stopped: state validation required", "The callback is stopped before code exchange", "This teaching simulation detects the missing state before the client redeems the code.", "A production client must reject a missing or mismatched state to prevent login CSRF.", now.Add(4*time.Second)))
+}
+
+func missingPKCEEvents(now time.Time) []Event {
+	events := secureEvents(now)
+	events[0].Parameters = []string{"response_type=code", "client_id=demo-client", "redirect_uri=http://localhost:5173/callback", "scope=read:profile", "state=********"}
+	events[0].SecurityProperties = []string{"exact redirect URI", "state", "PKCE missing"}
+	events[0].Outcome = "request accepted without PKCE"
+	events[0].Explanation = Explanation{Heading: "The client starts without a PKCE challenge", WhatHappened: "The authorization request has no code_challenge or code_challenge_method.", WhyItMatters: "An intercepted code is not bound to the client that initiated the browser flow."}
+	events[4] = event(5, "attacker", "intercepted_code_redeemed", "POST", "/token", []string{"grant_type=authorization_code", "code=********", "code_verifier=missing"}, []string{"PKCE missing", "simulated interception"}, "code accepted without verifier", "An intercepted code is redeemed", "The attacker simulation sends the intercepted authorization code to the token endpoint without a PKCE verifier.", "Without PKCE, the authorization server cannot distinguish the attacker from the legitimate public client.", now.Add(4*time.Second))
+	events[5] = event(6, "authorization_server", "access_token_issued", "200", "/token", []string{"token_type=Bearer", "access_token=********", "expires_in=600", "scope=read:profile"}, []string{"redacted secret", "security finding"}, "token issued to attacker simulation", "The server issues a token despite the missing verifier", "The simulated token endpoint accepts the code because it has no PKCE binding to validate.", "This is the outcome PKCE prevents: a stolen code becoming a usable access token.", now.Add(5*time.Second))
+	return events
+}
+
+func event(sequence int, actor, eventType, method, uri string, parameters, properties []string, outcome, heading, whatHappened, whyItMatters string, timestamp time.Time) Event {
+	return Event{Sequence: sequence, Actor: actor, Type: eventType, Method: method, URI: uri, Parameters: parameters, SecurityProperties: properties, Outcome: outcome, Explanation: Explanation{Heading: heading, WhatHappened: whatHappened, WhyItMatters: whyItMatters}, Timestamp: timestamp.Format(time.RFC3339)}
 }
 
 func randomID(prefix string) (string, error) {
