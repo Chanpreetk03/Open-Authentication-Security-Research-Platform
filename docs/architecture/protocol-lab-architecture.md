@@ -145,6 +145,9 @@ architecture](protocols/oauth-oidc-module.md).
 The JWT inspection tool's initial boundary and security limitations are
 documented in the [JWT inspector architecture](protocols/jwt-inspector.md).
 
+The local-only request and redirect inspector boundary is documented in the
+[HTTP inspector architecture](protocols/http-inspector.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.

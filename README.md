@@ -15,7 +15,8 @@ explorer. It follows the authorization request through access to a synthetic
 protected resource, with selectable state and PKCE failure scenarios. The Go
 API returns redacted events and per-exchange explanations to the React and
 TypeScript web client. Protocol Studio also includes a browser-local JWT
-inspector that decodes compact tokens without verifying their signatures.
+inspector and offline HTTP request/redirect inspector; neither sends user input
+to the API.
 
 Start the API from `backend/`:
 

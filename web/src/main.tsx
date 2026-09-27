@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { JwtInspector } from "./components/JwtInspector";
+import { RequestInspector } from "./components/RequestInspector";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -9,13 +10,14 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt">("oauth");
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http">("oauth");
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
       <button type="button" aria-current={activeTool === "jwt" ? "page" : undefined} onClick={() => setActiveTool("jwt")}>JWT inspector</button>
+      <button type="button" aria-current={activeTool === "http" ? "page" : undefined} onClick={() => setActiveTool("http")}>Request inspector</button>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : <JwtInspector />}
+    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : <RequestInspector />}
   </main>;
 }
 
