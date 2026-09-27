@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlCorrelationScenarios, loadSamlReplayScenarios, runSamlCorrelationScenario, runSamlReplayScenario } from "./saml-replay";
+import { loadSamlAudienceScenarios, loadSamlCorrelationScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlCorrelationScenario, runSamlReplayScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -76,5 +76,25 @@ describe("SAML replay API adapter", () => {
     expect(scenarios[0].secure).toBe(true);
     expect(exchange.status).toBe("mismatch_rejected");
     expect(exchange.messages[0].label).toBe("response_rejected");
+  });
+
+  it("uses the audience API contract and exposes the group-evaluation result", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "audience-enforced", name: "Enforce", description: "Check restrictions", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_audience_demo", protocol: "SAML 2.0", status: "audience_rejected",
+        scenario: { id: "audience-enforced", name: "Enforce", description: "Check restrictions", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "audience_restrictions_evaluated", method: "INTERNAL", uri: "ACS audience policy", parameters: ["restriction_1=OR(sp | shared)", "restriction_2=OR(other-sp)"], security_properties: ["OR within each group", "AND across groups"], outcome: "audience match = false", explanation: { heading: "Evaluate groups", what_happened: "A group missed", why_it_matters: "Every group must match." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "A restriction failed.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlAudienceScenarios();
+    const exchange = await runSamlAudienceScenario("audience-enforced");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/audience/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/audience?scenario=audience-enforced");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.messages[0].outcome).toBe("audience match = false");
+    expect(exchange.messages[0].securityClaims).toContain("AND across groups");
   });
 });

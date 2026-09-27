@@ -7,6 +7,7 @@ import { SamlAssertionViewer } from "./components/SamlAssertionViewer";
 import { SamlMetadataInspector } from "./components/SamlMetadataInspector";
 import { SamlReplayLab } from "./components/SamlReplayLab";
 import { SamlCorrelationLab } from "./components/SamlCorrelationLab";
+import { SamlAudienceLab } from "./components/SamlAudienceLab";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -15,7 +16,7 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation">("oauth");
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation" | "saml-audience">("oauth");
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
@@ -26,8 +27,9 @@ function App() {
       <button type="button" aria-current={activeTool === "metadata" ? "page" : undefined} onClick={() => setActiveTool("metadata")}>SAML metadata</button>
       <button type="button" aria-current={activeTool === "saml-replay" ? "page" : undefined} onClick={() => setActiveTool("saml-replay")}>SAML replay lab</button>
       <button type="button" aria-current={activeTool === "saml-correlation" ? "page" : undefined} onClick={() => setActiveTool("saml-correlation")}>SAML request binding</button>
+      <button type="button" aria-current={activeTool === "saml-audience" ? "page" : undefined} onClick={() => setActiveTool("saml-audience")}>SAML audience</button>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : <SamlCorrelationLab />}
+    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : <SamlAudienceLab />}
   </main>;
 }
 

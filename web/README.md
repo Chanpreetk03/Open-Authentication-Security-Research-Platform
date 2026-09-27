@@ -11,7 +11,7 @@ The Studio currently includes an OAuth/OIDC flow explorer, a browser-only JWT
 inspector, and an offline HTTP request/redirect inspector. The Vite development
 server proxies OAuth `/api` requests to the Go API at `http://localhost:8080`;
 the JWT, HTTP, SAML assertion, and SAML metadata tools do not call the API. The
-SAML replay and request-correlation labs use synthetic traces from the Go API.
+SAML replay, request-correlation, and audience-validation labs use synthetic traces from the Go API.
 The Academy's OAuth lesson
 uses the API's synthetic OAuth scenarios to provide attack and verification
 evidence.
@@ -45,6 +45,10 @@ The SAML request-correlation lab demonstrates how an ACS binds
 vulnerable trace illustrates login CSRF/account substitution when that match is
 ignored. It assumes the other assertion checks pass and does not process real
 SAML.
+
+The SAML audience lab exercises the AudienceRestriction matching rule: at least
+one audience in each restriction must match the SP entity ID. It uses a
+synthetic assertion and assumes all other checks pass.
 
 Run the frontend unit tests and production build with:
 

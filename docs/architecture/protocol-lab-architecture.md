@@ -160,6 +160,9 @@ The synthetic SAML browser-SSO replay exercise boundary is documented in the
 The SAML SP request-correlation exercise boundary is documented in the
 [SAML request-correlation lab architecture](protocols/saml-correlation-lab.md).
 
+The SAML relying-party audience evaluation exercise is documented in the
+[SAML audience lab architecture](protocols/saml-audience-lab.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.

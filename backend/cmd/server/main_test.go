@@ -25,6 +25,10 @@ func TestSAMLReplayRoutes(t *testing.T) {
 		{name: "default correlation trace", path: "/api/flows/saml/correlation", statusCode: http.StatusOK, wantStatus: "mismatch_rejected"},
 		{name: "correlation ignored trace", path: "/api/flows/saml/correlation?scenario=correlation-ignored", statusCode: http.StatusOK, wantStatus: "mismatch_accepted"},
 		{name: "unsupported correlation scenario", path: "/api/flows/saml/correlation?scenario=unknown", statusCode: http.StatusBadRequest},
+		{name: "audience scenario catalog", path: "/api/flows/saml/audience/scenarios", statusCode: http.StatusOK},
+		{name: "default audience trace", path: "/api/flows/saml/audience", statusCode: http.StatusOK, wantStatus: "audience_rejected"},
+		{name: "audience ignored trace", path: "/api/flows/saml/audience?scenario=audience-ignored", statusCode: http.StatusOK, wantStatus: "audience_accepted"},
+		{name: "unsupported audience scenario", path: "/api/flows/saml/audience?scenario=unknown", statusCode: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {

@@ -39,6 +39,14 @@ export async function runSamlCorrelationScenario(scenarioId: string): Promise<Pr
   return runSamlScenario("/api/flows/saml/correlation", scenarioId, "SAML correlation");
 }
 
+export async function loadSamlAudienceScenarios(): Promise<ScenarioDescriptor[]> {
+  return loadScenarios("/api/flows/saml/audience/scenarios", "SAML audience lab");
+}
+
+export async function runSamlAudienceScenario(scenarioId: string): Promise<ProtocolExchange> {
+  return runSamlScenario("/api/flows/saml/audience", scenarioId, "SAML audience");
+}
+
 async function loadScenarios(endpoint: string, label: string): Promise<ScenarioDescriptor[]> {
   const response = await fetch(endpoint);
   if (!response.ok) throw new Error(`The ${label} API is unavailable.`);

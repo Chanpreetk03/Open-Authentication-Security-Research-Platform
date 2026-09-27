@@ -16,6 +16,8 @@ The explorer exposes:
 - `GET /api/flows/saml/replay?scenario=replay-protected|replay-disabled`
 - `GET /api/flows/saml/correlation/scenarios`
 - `GET /api/flows/saml/correlation?scenario=correlation-required|correlation-ignored`
+- `GET /api/flows/saml/audience/scenarios`
+- `GET /api/flows/saml/audience?scenario=audience-enforced|audience-ignored`
 - `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
 
 The secure reference flow runs from authorization request through a synthetic
