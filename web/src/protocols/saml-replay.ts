@@ -1,6 +1,6 @@
 import type { ProtocolExchange, ProtocolMessage, ScenarioDescriptor } from "./oauth";
 
-type SAMLReplayEvent = {
+type SAMLFlowEvent = {
   sequence: number;
   actor: string;
   type: string;
@@ -13,26 +13,42 @@ type SAMLReplayEvent = {
   timestamp: string;
 };
 
-type SAMLReplayFlow = {
+type SAMLFlowResponse = {
   id: string;
   protocol: string;
   status: string;
   scenario: ScenarioDescriptor;
-  events: SAMLReplayEvent[];
+  events: SAMLFlowEvent[];
   findings: ProtocolExchange["findings"];
   learning_outcome: string;
 };
 
 export async function loadSamlReplayScenarios(): Promise<ScenarioDescriptor[]> {
-  const response = await fetch("/api/flows/saml/scenarios");
-  if (!response.ok) throw new Error("The SAML replay lab API is unavailable.");
-  return (await response.json()) as ScenarioDescriptor[];
+  return loadScenarios("/api/flows/saml/scenarios", "SAML replay lab");
 }
 
 export async function runSamlReplayScenario(scenarioId: string): Promise<ProtocolExchange> {
-  const response = await fetch(`/api/flows/saml/replay?scenario=${encodeURIComponent(scenarioId)}`);
-  if (!response.ok) throw new Error("The selected SAML replay scenario could not be run.");
-  const flow = (await response.json()) as SAMLReplayFlow;
+  return runSamlScenario("/api/flows/saml/replay", scenarioId, "SAML replay");
+}
+
+export async function loadSamlCorrelationScenarios(): Promise<ScenarioDescriptor[]> {
+  return loadScenarios("/api/flows/saml/correlation/scenarios", "SAML correlation lab");
+}
+
+export async function runSamlCorrelationScenario(scenarioId: string): Promise<ProtocolExchange> {
+  return runSamlScenario("/api/flows/saml/correlation", scenarioId, "SAML correlation");
+}
+
+async function loadScenarios(endpoint: string, label: string): Promise<ScenarioDescriptor[]> {
+  const response = await fetch(endpoint);
+  if (!response.ok) throw new Error(`The ${label} API is unavailable.`);
+  return (await response.json()) as ScenarioDescriptor[];
+}
+
+async function runSamlScenario(endpoint: string, scenarioId: string, label: string): Promise<ProtocolExchange> {
+  const response = await fetch(`${endpoint}?scenario=${encodeURIComponent(scenarioId)}`);
+  if (!response.ok) throw new Error(`The selected ${label} scenario could not be run.`);
+  const flow = (await response.json()) as SAMLFlowResponse;
   const messages: ProtocolMessage[] = flow.events.map((event) => ({
     sequence: event.sequence,
     participant: event.actor,

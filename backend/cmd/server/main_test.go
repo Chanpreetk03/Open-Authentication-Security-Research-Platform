@@ -21,6 +21,10 @@ func TestSAMLReplayRoutes(t *testing.T) {
 		{name: "default secure trace", path: "/api/flows/saml/replay", statusCode: http.StatusOK, wantStatus: "replay_rejected"},
 		{name: "replay disabled trace", path: "/api/flows/saml/replay?scenario=replay-disabled", statusCode: http.StatusOK, wantStatus: "replay_accepted"},
 		{name: "unsupported scenario", path: "/api/flows/saml/replay?scenario=unknown", statusCode: http.StatusBadRequest},
+		{name: "correlation scenario catalog", path: "/api/flows/saml/correlation/scenarios", statusCode: http.StatusOK},
+		{name: "default correlation trace", path: "/api/flows/saml/correlation", statusCode: http.StatusOK, wantStatus: "mismatch_rejected"},
+		{name: "correlation ignored trace", path: "/api/flows/saml/correlation?scenario=correlation-ignored", statusCode: http.StatusOK, wantStatus: "mismatch_accepted"},
+		{name: "unsupported correlation scenario", path: "/api/flows/saml/correlation?scenario=unknown", statusCode: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlReplayScenarios, runSamlReplayScenario } from "./saml-replay";
+import { loadSamlCorrelationScenarios, loadSamlReplayScenarios, runSamlCorrelationScenario, runSamlReplayScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -56,5 +56,25 @@ describe("SAML replay API adapter", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }));
 
     await expect(runSamlReplayScenario("not-a-scenario")).rejects.toThrow("selected SAML replay scenario");
+  });
+
+  it("uses the request-correlation API contract and shared event mapping", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "correlation-required", name: "Require correlation", description: "Reject mismatch", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_correlation_demo", protocol: "SAML 2.0", status: "mismatch_rejected",
+        scenario: { id: "correlation-required", name: "Require correlation", description: "Reject mismatch", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "response_rejected", method: "INTERNAL", uri: "ACS policy", parameters: ["received=_request-attacker"], security_properties: ["mismatch rejected"], outcome: "no session", explanation: { heading: "Mismatch", what_happened: "Rejected", why_it_matters: "Binds the response to the request." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "The mismatch was blocked.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlCorrelationScenarios();
+    const exchange = await runSamlCorrelationScenario("correlation-required");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/correlation/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/correlation?scenario=correlation-required");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.status).toBe("mismatch_rejected");
+    expect(exchange.messages[0].label).toBe("response_rejected");
   });
 });

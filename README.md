@@ -21,7 +21,8 @@ Base64 `SAMLResponse`, masks subject/attribute values initially, and does not
 validate signatures, issuer trust, or relying-party acceptance. A separate
 local metadata inspector lists federation entities and endpoints without
 verifying their trust, while a synthetic SAML replay lab demonstrates
-assertion-ID replay-cache behavior without processing real SAML messages. The
+assertion-ID replay-cache behavior and a request-correlation lab demonstrates
+account substitution risk. Both use synthetic traces, not real SAML messages. The
 Cybersecurity Principles Academy includes a guided
 defense-in-depth exercise based on the synthetic OAuth scenarios.
 
