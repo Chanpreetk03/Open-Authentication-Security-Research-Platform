@@ -163,6 +163,9 @@ The SAML SP request-correlation exercise boundary is documented in the
 The SAML relying-party audience evaluation exercise is documented in the
 [SAML audience lab architecture](protocols/saml-audience-lab.md).
 
+The SAML bearer recipient validation exercise is documented in the
+[SAML recipient lab architecture](protocols/saml-recipient-lab.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.

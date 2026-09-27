@@ -98,6 +98,25 @@ func newHandler() http.Handler {
 	mux.HandleFunc("GET /api/flows/saml/audience/scenarios", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, saml.AudienceScenarios())
 	})
+	mux.HandleFunc("GET /api/flows/saml/recipient", func(w http.ResponseWriter, r *http.Request) {
+		scenario := r.URL.Query().Get("scenario")
+		if scenario == "" {
+			scenario = saml.ScenarioRecipientEnforced
+		}
+		flow, err := saml.NewRecipientFlow(scenario, time.Now().UTC())
+		if err != nil {
+			if errors.Is(err, saml.ErrUnsupportedScenario) {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, flow)
+	})
+	mux.HandleFunc("GET /api/flows/saml/recipient/scenarios", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, http.StatusOK, saml.RecipientScenarios())
+	})
 
 	return withCORS(mux)
 }

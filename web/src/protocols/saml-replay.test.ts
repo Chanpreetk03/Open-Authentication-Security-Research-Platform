@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlAudienceScenarios, loadSamlCorrelationScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlCorrelationScenario, runSamlReplayScenario } from "./saml-replay";
+import { loadSamlAudienceScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -96,5 +96,25 @@ describe("SAML replay API adapter", () => {
     expect(scenarios[0].secure).toBe(true);
     expect(exchange.messages[0].outcome).toBe("audience match = false");
     expect(exchange.messages[0].securityClaims).toContain("AND across groups");
+  });
+
+  it("uses the recipient API contract and maps ACS comparison evidence", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "recipient-enforced", name: "Require recipient", description: "Exact ACS match", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_recipient_demo", protocol: "SAML 2.0", status: "recipient_rejected",
+        scenario: { id: "recipient-enforced", name: "Require recipient", description: "Exact ACS match", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "recipient_evaluated", method: "INTERNAL", uri: "ACS recipient policy", parameters: ["expected=https://sp.test/acs", "received=https://sp.test/other"], security_properties: ["exact Recipient comparison"], outcome: "recipient match = false", explanation: { heading: "Compare recipient", what_happened: "URLs differ", why_it_matters: "The confirmation names the consuming ACS." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "Mismatch rejected.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlRecipientScenarios();
+    const exchange = await runSamlRecipientScenario("recipient-enforced");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/recipient/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/recipient?scenario=recipient-enforced");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.messages[0].label).toBe("recipient_evaluated");
+    expect(exchange.messages[0].outcome).toBe("recipient match = false");
   });
 });

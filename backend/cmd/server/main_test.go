@@ -29,6 +29,10 @@ func TestSAMLReplayRoutes(t *testing.T) {
 		{name: "default audience trace", path: "/api/flows/saml/audience", statusCode: http.StatusOK, wantStatus: "audience_rejected"},
 		{name: "audience ignored trace", path: "/api/flows/saml/audience?scenario=audience-ignored", statusCode: http.StatusOK, wantStatus: "audience_accepted"},
 		{name: "unsupported audience scenario", path: "/api/flows/saml/audience?scenario=unknown", statusCode: http.StatusBadRequest},
+		{name: "recipient scenario catalog", path: "/api/flows/saml/recipient/scenarios", statusCode: http.StatusOK},
+		{name: "default recipient trace", path: "/api/flows/saml/recipient", statusCode: http.StatusOK, wantStatus: "recipient_rejected"},
+		{name: "recipient ignored trace", path: "/api/flows/saml/recipient?scenario=recipient-ignored", statusCode: http.StatusOK, wantStatus: "recipient_accepted"},
+		{name: "unsupported recipient scenario", path: "/api/flows/saml/recipient?scenario=unknown", statusCode: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {
