@@ -10,7 +10,7 @@ npm run dev
 The Studio currently includes an OAuth/OIDC flow explorer, a browser-only JWT
 inspector, and an offline HTTP request/redirect inspector. The Vite development
 server proxies OAuth `/api` requests to the Go API at `http://localhost:8080`;
-the JWT, HTTP, and SAML tools do not call the API. The Academy's OAuth lesson
+the JWT, HTTP, SAML assertion, and SAML metadata tools do not call the API. The Academy's OAuth lesson
 uses the API's synthetic OAuth scenarios to provide attack and verification
 evidence.
 
@@ -27,6 +27,11 @@ rejects DTD/entity declarations, performs no external lookups, and masks
 subject/attribute values by default. It is not a SAML validator: XML signatures,
 issuer trust, conditions, audience, replay protection, and service-provider
 acceptance are not verified.
+
+The SAML metadata inspector lists entities, role descriptors, selected protocol
+endpoints, and certificate presence/use declarations from pasted XML. It does
+not fetch metadata, verify XML signatures or X.509 certificates, authenticate
+the source, or create trusted federation configuration.
 
 Run the frontend unit tests and production build with:
 

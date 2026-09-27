@@ -18,7 +18,9 @@ TypeScript web client. Protocol Studio also includes a browser-local JWT
 inspector, offline HTTP request/redirect inspector, and local SAML assertion
 viewer; none sends user input to the API. The SAML viewer parses raw XML or a
 Base64 `SAMLResponse`, masks subject/attribute values initially, and does not
-validate signatures, issuer trust, or relying-party acceptance. The
+validate signatures, issuer trust, or relying-party acceptance. A separate
+local metadata inspector lists federation entities and endpoints without
+verifying their trust. The
 Cybersecurity Principles Academy includes a guided
 defense-in-depth exercise based on the synthetic OAuth scenarios.
 

@@ -4,6 +4,7 @@ import { JwtInspector } from "./components/JwtInspector";
 import { RequestInspector } from "./components/RequestInspector";
 import { DefenseInDepthLesson } from "./components/DefenseInDepthLesson";
 import { SamlAssertionViewer } from "./components/SamlAssertionViewer";
+import { SamlMetadataInspector } from "./components/SamlMetadataInspector";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -12,7 +13,7 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml">("oauth");
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata">("oauth");
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
@@ -20,8 +21,9 @@ function App() {
       <button type="button" aria-current={activeTool === "http" ? "page" : undefined} onClick={() => setActiveTool("http")}>Request inspector</button>
       <button type="button" aria-current={activeTool === "academy" ? "page" : undefined} onClick={() => setActiveTool("academy")}>Academy</button>
       <button type="button" aria-current={activeTool === "saml" ? "page" : undefined} onClick={() => setActiveTool("saml")}>SAML viewer</button>
+      <button type="button" aria-current={activeTool === "metadata" ? "page" : undefined} onClick={() => setActiveTool("metadata")}>SAML metadata</button>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : <SamlAssertionViewer />}
+    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : <SamlMetadataInspector />}
   </main>;
 }
 

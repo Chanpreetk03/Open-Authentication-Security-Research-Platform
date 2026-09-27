@@ -151,6 +151,9 @@ The local-only request and redirect inspector boundary is documented in the
 The local SAML XML assertion viewer and its non-validation boundary are
 documented in the [SAML assertion viewer architecture](protocols/saml-assertion-viewer.md).
 
+The browser-local federation metadata inspection boundary is documented in the
+[SAML metadata inspector architecture](protocols/saml-metadata-inspector.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.
