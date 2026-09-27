@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlAudienceScenarios, loadSamlConditionsScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlConditionsScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario } from "./saml-replay";
+import { loadSamlAudienceScenarios, loadSamlConditionsScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, loadSamlSignatureBindingScenarios, runSamlAudienceScenario, runSamlConditionsScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario, runSamlSignatureBindingScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -136,5 +136,24 @@ describe("SAML replay API adapter", () => {
     expect(scenarios[0].secure).toBe(true);
     expect(exchange.messages[0].outcome).toBe("within condition window = false");
     expect(exchange.messages[0].securityClaims).toContain("NotOnOrAfter exclusive");
+  });
+
+  it("uses the signature-binding API and maps verified-node evidence", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "signature-binding-enforced", name: "Consume verified node", description: "Bind to verifier result", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_signature_binding_demo", protocol: "SAML 2.0", status: "unverified_node_rejected",
+        scenario: { id: "signature-binding-enforced", name: "Consume verified node", description: "Bind to verifier result", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "signature_binding_evaluated", method: "INTERNAL", uri: "verified object binding", parameters: ["verified_node=_signed", "consumed_node=_injected"], security_properties: ["object identity comparison"], outcome: "consumes verified node = false", explanation: { heading: "Bind the node", what_happened: "Different nodes", why_it_matters: "Consume only verified data." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "Unverified node rejected.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlSignatureBindingScenarios();
+    const exchange = await runSamlSignatureBindingScenario("signature-binding-enforced");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/signature-binding/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/signature-binding?scenario=signature-binding-enforced");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.messages[0].outcome).toBe("consumes verified node = false");
   });
 });

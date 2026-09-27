@@ -37,6 +37,10 @@ func TestSAMLReplayRoutes(t *testing.T) {
 		{name: "default conditions trace", path: "/api/flows/saml/conditions", statusCode: http.StatusOK, wantStatus: "expired_rejected"},
 		{name: "conditions ignored trace", path: "/api/flows/saml/conditions?scenario=conditions-ignored", statusCode: http.StatusOK, wantStatus: "expired_accepted"},
 		{name: "unsupported conditions scenario", path: "/api/flows/saml/conditions?scenario=unknown", statusCode: http.StatusBadRequest},
+		{name: "signature-binding scenario catalog", path: "/api/flows/saml/signature-binding/scenarios", statusCode: http.StatusOK},
+		{name: "default signature-binding trace", path: "/api/flows/saml/signature-binding", statusCode: http.StatusOK, wantStatus: "unverified_node_rejected"},
+		{name: "signature binding ignored trace", path: "/api/flows/saml/signature-binding?scenario=signature-binding-ignored", statusCode: http.StatusOK, wantStatus: "unverified_node_accepted"},
+		{name: "unsupported signature-binding scenario", path: "/api/flows/saml/signature-binding?scenario=unknown", statusCode: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {

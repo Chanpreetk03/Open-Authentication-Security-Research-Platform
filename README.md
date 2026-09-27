@@ -22,8 +22,9 @@ validate signatures, issuer trust, or relying-party acceptance. A separate
 local metadata inspector lists federation entities and endpoints without
 verifying their trust, while a synthetic SAML replay lab demonstrates
 assertion-ID replay-cache behavior and a request-correlation lab demonstrates
-account substitution risk. Audience, recipient, and time-condition labs exercise
-separate relying-party checks. These labs use synthetic traces, not real SAML
+account substitution risk. Audience, recipient, time-condition, and
+signature-binding labs exercise separate relying-party checks. These labs use
+synthetic traces, not real SAML
 messages. The
 Cybersecurity Principles Academy includes a guided
 defense-in-depth exercise based on the synthetic OAuth scenarios.

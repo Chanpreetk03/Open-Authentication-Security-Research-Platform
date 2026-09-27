@@ -22,6 +22,8 @@ The explorer exposes:
 - `GET /api/flows/saml/recipient?scenario=recipient-enforced|recipient-ignored`
 - `GET /api/flows/saml/conditions/scenarios`
 - `GET /api/flows/saml/conditions?scenario=conditions-enforced|conditions-ignored`
+- `GET /api/flows/saml/signature-binding/scenarios`
+- `GET /api/flows/saml/signature-binding?scenario=signature-binding-enforced|signature-binding-ignored`
 - `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
 
 The secure reference flow runs from authorization request through a synthetic

@@ -169,6 +169,9 @@ The SAML bearer recipient validation exercise is documented in the
 The SAML assertion time-window exercise is documented in the
 [SAML conditions lab architecture](protocols/saml-conditions-lab.md).
 
+The XML-signature verified-node binding exercise is documented in the
+[SAML signature-binding lab architecture](protocols/saml-signature-binding-lab.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.

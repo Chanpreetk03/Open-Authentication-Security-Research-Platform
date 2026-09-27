@@ -10,6 +10,7 @@ import { SamlCorrelationLab } from "./components/SamlCorrelationLab";
 import { SamlAudienceLab } from "./components/SamlAudienceLab";
 import { SamlRecipientLab } from "./components/SamlRecipientLab";
 import { SamlConditionsLab } from "./components/SamlConditionsLab";
+import { SamlSignatureBindingLab } from "./components/SamlSignatureBindingLab";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -18,7 +19,7 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation" | "saml-audience" | "saml-recipient" | "saml-conditions">("oauth");
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation" | "saml-audience" | "saml-recipient" | "saml-conditions" | "saml-signature-binding">("oauth");
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
@@ -32,8 +33,9 @@ function App() {
       <button type="button" aria-current={activeTool === "saml-audience" ? "page" : undefined} onClick={() => setActiveTool("saml-audience")}>SAML audience</button>
       <button type="button" aria-current={activeTool === "saml-recipient" ? "page" : undefined} onClick={() => setActiveTool("saml-recipient")}>SAML recipient</button>
       <button type="button" aria-current={activeTool === "saml-conditions" ? "page" : undefined} onClick={() => setActiveTool("saml-conditions")}>SAML time conditions</button>
+      <button type="button" aria-current={activeTool === "saml-signature-binding" ? "page" : undefined} onClick={() => setActiveTool("saml-signature-binding")}>SAML signature binding</button>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : activeTool === "saml-audience" ? <SamlAudienceLab /> : activeTool === "saml-recipient" ? <SamlRecipientLab /> : <SamlConditionsLab />}
+    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : activeTool === "saml-audience" ? <SamlAudienceLab /> : activeTool === "saml-recipient" ? <SamlRecipientLab /> : activeTool === "saml-conditions" ? <SamlConditionsLab /> : <SamlSignatureBindingLab />}
   </main>;
 }
 

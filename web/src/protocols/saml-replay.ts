@@ -63,6 +63,14 @@ export async function runSamlConditionsScenario(scenarioId: string): Promise<Pro
   return runSamlScenario("/api/flows/saml/conditions", scenarioId, "SAML conditions");
 }
 
+export async function loadSamlSignatureBindingScenarios(): Promise<ScenarioDescriptor[]> {
+  return loadScenarios("/api/flows/saml/signature-binding/scenarios", "SAML signature-binding lab");
+}
+
+export async function runSamlSignatureBindingScenario(scenarioId: string): Promise<ProtocolExchange> {
+  return runSamlScenario("/api/flows/saml/signature-binding", scenarioId, "SAML signature-binding");
+}
+
 async function loadScenarios(endpoint: string, label: string): Promise<ScenarioDescriptor[]> {
   const response = await fetch(endpoint);
   if (!response.ok) throw new Error(`The ${label} API is unavailable.`);
