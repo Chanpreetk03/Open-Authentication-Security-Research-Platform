@@ -148,6 +148,9 @@ documented in the [JWT inspector architecture](protocols/jwt-inspector.md).
 The local-only request and redirect inspector boundary is documented in the
 [HTTP inspector architecture](protocols/http-inspector.md).
 
+The local SAML XML assertion viewer and its non-validation boundary are
+documented in the [SAML assertion viewer architecture](protocols/saml-assertion-viewer.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.

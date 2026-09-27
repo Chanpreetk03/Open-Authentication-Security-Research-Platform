@@ -95,6 +95,42 @@ h1 { font-size: clamp(2.8rem, 7vw, 5.9rem); line-height: .95; letter-spacing: -.
 .academy-feedback { padding: 12px 14px; border-radius: 7px; line-height: 1.5; }.academy-feedback.correct { color: #bce6c8; background: #1d3527; }.academy-feedback.incorrect { color: #ffd09b; background: #382d20; }
 .academy-trace { margin-top: 25px; padding-top: 18px; border-top: 1px solid #32423c; }.academy-trace summary { color: #b7d85e; cursor: pointer; }.academy-trace ol { display: grid; gap: 8px; padding: 0; list-style: none; }.academy-trace li { display: grid; grid-template-columns: 30px minmax(120px, .6fr) minmax(0, 1fr); gap: 10px; padding: 10px; background: #101815; align-items: start; }.academy-trace li > span { color: #b7d85e; font-family: "Cascadia Code", Consolas, monospace; }.academy-trace li strong { color: #d9e5df; font-size: .83rem; }.academy-trace li small { color: #a8b9b2; }
 .academy-complete { margin-top: 30px; padding: 24px 0 4px; }
+.saml-hero h1 { max-width: 920px; }
+.saml-workbench { max-width: 1000px; margin-top: 38px; padding: 25px; background: rgba(23, 33, 30, .86); border: 1px solid #32423c; border-radius: 16px; }
+.saml-boundary { display: grid; gap: 6px; padding: 14px 16px; margin-bottom: 24px; color: #d6dfd9; background: #25352b; border-left: 3px solid #b7d85e; }
+.saml-boundary strong, .saml-kicker { color: #b7d85e; font: 500 .72rem "Cascadia Code", Consolas, monospace; letter-spacing: .07em; text-transform: uppercase; }
+.saml-boundary span { color: #b8c8c0; line-height: 1.5; }
+.saml-label { display: block; margin-bottom: 8px; color: #d9e5df; font-weight: 600; }
+.saml-workbench textarea { width: 100%; resize: vertical; min-height: 180px; padding: 14px; color: #dce8e1; background: #0e1512; border: 1px solid #40534a; border-radius: 8px; font: .84rem/1.6 "Cascadia Code", Consolas, monospace; overflow-wrap: anywhere; }
+.saml-workbench textarea:focus-visible { outline: 2px solid #b7d85e; outline-offset: 2px; }
+.saml-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 16px; }
+.example-button { padding: 10px 0; color: #c4d2ca; background: none; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.saml-result { margin-top: 32px; border-top: 1px solid #32423c; }
+.saml-error { padding: 14px 16px; color: #ffb39a; background: #382520; border: 1px solid #765044; border-radius: 8px; line-height: 1.5; }
+.saml-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 22px 0; border-bottom: 1px solid #32423c; }
+.saml-summary > div { display: grid; gap: 8px; min-width: 0; }
+.saml-summary strong { font: 500 1rem "Cascadia Code", Consolas, monospace; overflow-wrap: anywhere; }
+.saml-findings, .saml-data-section { padding: 22px 0; }
+.saml-findings h2, .saml-data-section h2 { margin: 0 0 14px; font-size: 1.2rem; }
+.saml-finding { display: grid; grid-template-columns: 68px 1fr; gap: 13px; padding: 14px; margin-top: 9px; border: 1px solid #40534a; border-radius: 8px; background: #1c2823; }
+.saml-finding > span { font: 500 .7rem "Cascadia Code", Consolas, monospace; text-transform: uppercase; }
+.saml-finding.high { border-color: #9a5547; background: #382520; }.saml-finding.high > span { color: #ff9f7a; }
+.saml-finding.medium { border-color: #76522c; background: #382d20; }.saml-finding.medium > span { color: #ffbf6b; }
+.saml-finding.info > span { color: #9ecbb7; }
+.saml-finding h3 { margin: 0; font-size: .95rem; }.saml-finding p { margin: 6px 0 0; color: #b8c8c0; line-height: 1.5; }
+.saml-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; border-top: 1px solid #32423c; }
+.saml-fields > div { min-width: 0; padding: 12px 4px; border-bottom: 1px solid #32423c; }
+.saml-fields dt { margin-bottom: 5px; color: #8fa399; font: .7rem "Cascadia Code", Consolas, monospace; text-transform: uppercase; }
+.saml-fields dd { margin: 0; color: #d9e5df; overflow-wrap: anywhere; white-space: pre-wrap; }
+.saml-assertion { margin-top: 16px; padding: 18px; background: #101815; border: 1px solid #32423c; border-radius: 9px; }
+.saml-assertion > h3 { margin: 0 0 14px; color: #b7d85e; }
+.saml-assertions-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.saml-assertions-heading h2 { margin: 0; }.saml-assertions-heading label { color: #c4d2ca; font-size: .85rem; cursor: pointer; }.saml-assertions-heading input { accent-color: #b7d85e; }
+.saml-attributes { margin-top: 17px; }.saml-attributes h4 { margin: 0 0 9px; color: #9ecbb7; }
+.saml-attribute { display: grid; grid-template-columns: minmax(120px, .7fr) minmax(100px, .6fr) minmax(0, 1.5fr); gap: 12px; padding: 11px 4px; border-top: 1px solid #32423c; align-items: start; }
+.saml-attribute > code, .saml-attribute > div { overflow-wrap: anywhere; }.saml-attribute > code { color: #b7d85e; }.saml-attribute > span { color: #8fa399; font-size: .8rem; }.saml-attribute > div { display: flex; flex-wrap: wrap; gap: 5px; }.saml-attribute > div code { color: #d9e5df; }
+@media (max-width: 820px) { .saml-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .saml-workbench { padding: 16px; }.saml-summary, .saml-fields { grid-template-columns: 1fr; }.saml-finding { grid-template-columns: 1fr; }.saml-attribute { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; }.saml-attribute > div { grid-column: 1 / -1; } }
 @media (max-width: 820px) { .scenario-picker, .explorer-grid { grid-template-columns: 1fr; }.explanation { border-left: 0; border-top: 1px solid #32423c; }.event-head { display: block; }.event-head code { display: block; margin-top: 12px; }.summary { flex-wrap: wrap; }.status { margin-left: 0; } }
 @media (max-width: 820px) { .jwt-data-grid { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { main { padding-inline: 16px; }.scenario-picker { gap: 9px; }.scenario { min-height: auto; }.findings article, .jwt-finding, .request-finding { grid-template-columns: 1fr; }.timeline { padding-inline: 14px; }.event { grid-template-columns: 32px 1fr; }.studio-shell { padding-top: 18px; }.tool-switcher { margin-bottom: 35px; }.jwt-workbench, .request-workbench, .academy-workbench { padding: 16px; }.jwt-summary { grid-template-columns: 1fr; }.claim-row { grid-template-columns: 55px minmax(0, 1fr); }.claim-row small { grid-column: 2; }.request-summary { grid-template-columns: 1fr; }.request-header, .request-parameter { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }.request-header span, .request-parameter span { grid-column: 1; }.request-header small, .request-parameter small { grid-column: 2; grid-row: 1 / span 2; }.academy-trace li { grid-template-columns: 30px 1fr; }.academy-trace li small { grid-column: 2; } }
