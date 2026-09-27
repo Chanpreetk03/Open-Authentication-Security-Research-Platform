@@ -12,9 +12,11 @@ OAuth/OIDC flow explorer as the first Protocol Studio capability.
 
 ## Decision
 
-The first executable slice is a local OAuth 2.0 authorization-code flow using
-one demo client and one local authorization server. The API emits ordered,
-redacted protocol events and the web application renders them as a timeline.
+The first executable slice is a deterministic simulation of an OAuth 2.0
+authorization-code flow with one demo client, one authorization server, and
+one resource server. The
+API emits ordered, redacted protocol events through protected resource access,
+and the web application renders them as an explainable timeline.
 The first slice does not include persistence, external providers, OIDC ID
 tokens, or production deployment. It includes deterministic, isolated teaching
 simulations for missing state and missing PKCE; they emit redacted evidence and

@@ -1,57 +1,15 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
-
-type Explanation = {
-  heading: string;
-  what_happened: string;
-  why_it_matters: string;
-};
-
-type FlowEvent = {
-  sequence: number;
-  actor: string;
-  type: string;
-  method: string;
-  uri: string;
-  parameters?: string[];
-  security_properties: string[];
-  outcome: string;
-  explanation: Explanation;
-};
-
-type Scenario = {
-  id: string;
-  name: string;
-  description: string;
-  secure: boolean;
-};
-
-type Finding = {
-  severity: string;
-  title: string;
-  description: string;
-  mitigation: string;
-};
-
-type Flow = {
-  id: string;
-  protocol: string;
-  grant_type: string;
-  status: string;
-  scenario: Scenario;
-  events: FlowEvent[];
-  findings: Finding[];
-  learning_outcome: string;
-};
 
 function displayName(value: string) {
   return value.replace(/_/g, " ");
 }
 
 function App() {
-  const [flow, setFlow] = useState<Flow | null>(null);
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [flow, setFlow] = useState<ProtocolExchange | null>(null);
+  const [scenarios, setScenarios] = useState<ScenarioDescriptor[]>([]);
   const [selectedScenario, setSelectedScenario] = useState("secure");
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,9 +18,7 @@ function App() {
   useEffect(() => {
     async function loadScenarios() {
       try {
-        const response = await fetch("/api/flows/oauth/scenarios");
-        if (!response.ok) throw new Error("The explorer API is unavailable.");
-        setScenarios((await response.json()) as Scenario[]);
+        setScenarios(await loadOAuthScenarios());
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to load scenarios.");
       }
@@ -73,12 +29,11 @@ function App() {
   async function runFlow() {
     setLoading(true);
     setError("");
+    const scenarioId = selectedScenario;
     try {
-      const response = await fetch(`/api/flows/oauth/authorization-code?scenario=${encodeURIComponent(selectedScenario)}`);
-      if (!response.ok) throw new Error("The selected scenario could not be run.");
-      const nextFlow = (await response.json()) as Flow;
+      const nextFlow = await runOAuthScenario(scenarioId);
       setFlow(nextFlow);
-      setSelectedEvent(nextFlow.events[0]?.sequence ?? null);
+      setSelectedEvent(nextFlow.messages[0]?.sequence ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to run the flow.");
     } finally {
@@ -86,7 +41,7 @@ function App() {
     }
   }
 
-  const activeEvent = flow?.events.find((event) => event.sequence === selectedEvent);
+  const activeEvent = flow?.messages.find((message) => message.sequence === selectedEvent);
 
   return <main>
     <header className="hero">
@@ -98,7 +53,13 @@ function App() {
         {scenarios.map((scenario) => <button
           className={`scenario ${selectedScenario === scenario.id ? "selected" : ""}`}
           key={scenario.id}
-          onClick={() => setSelectedScenario(scenario.id)}
+          aria-pressed={selectedScenario === scenario.id}
+          disabled={loading}
+          onClick={() => {
+            setSelectedScenario(scenario.id);
+            setFlow(null);
+            setSelectedEvent(null);
+          }}
           type="button"
         >
           <span>{scenario.secure ? "Reference" : "Failure simulation"}</span>
@@ -116,7 +77,7 @@ function App() {
     {flow && <section className="workspace" aria-live="polite">
       <div className="summary">
         <span>{flow.protocol}</span>
-        <strong>{flow.grant_type}</strong>
+        <strong>authorization_code</strong>
         <span className={`status ${flow.scenario.secure ? "secure" : "warning"}`}>{flow.status.replace(/_/g, " ")}</span>
       </div>
 
@@ -127,11 +88,11 @@ function App() {
         </article>)}
       </section>}
 
-      <p className="learning-outcome"><strong>Learning outcome:</strong> {flow.learning_outcome}</p>
+      <p className="learning-outcome"><strong>Learning outcome:</strong> {flow.learningOutcome}</p>
 
       <div className="explorer-grid">
         <div className="timeline" aria-label="Protocol event timeline">
-          {flow.events.map((event) => <button
+          {flow.messages.map((event) => <button
             className={`event ${selectedEvent === event.sequence ? "active" : ""}`}
             key={event.sequence}
             onClick={() => setSelectedEvent(event.sequence)}
@@ -139,9 +100,9 @@ function App() {
           >
             <span className="marker">{String(event.sequence).padStart(2, "0")}</span>
             <span className="event-body">
-              <span className="event-head"><span><span className="actor">{displayName(event.actor)}</span><strong>{displayName(event.type)}</strong></span><code>{event.method} {event.uri}</code></span>
+              <span className="event-head"><span><span className="actor">{displayName(event.participant)}</span><strong>{displayName(event.label)}</strong></span><code>{event.method} {event.target}</code></span>
               <span className="event-outcome">{event.outcome}</span>
-              <span className="properties">{event.security_properties.map((property) => <span key={property}>{property}</span>)}</span>
+              <span className="properties">{event.securityClaims.map((property) => <span key={property}>{property}</span>)}</span>
             </span>
           </button>)}
         </div>
@@ -151,7 +112,7 @@ function App() {
           <h2>{activeEvent.explanation.heading}</h2>
           <section><h3>What happened</h3><p>{activeEvent.explanation.what_happened}</p></section>
           <section><h3>Why it matters</h3><p>{activeEvent.explanation.why_it_matters}</p></section>
-          {activeEvent.parameters && <section><h3>Visible parameters</h3><div className="parameters">{activeEvent.parameters.map((parameter) => <code key={parameter}>{parameter}</code>)}</div></section>}
+          {activeEvent.fields.length > 0 && <section><h3>Visible fields</h3><div className="parameters">{activeEvent.fields.map((field) => <code key={field}>{field}</code>)}</div></section>}
         </aside>}
       </div>
     </section>}

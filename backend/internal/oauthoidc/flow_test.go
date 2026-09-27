@@ -2,6 +2,7 @@ package oauthoidc
 
 import (
 	"errors"
+	"strings"
 	"testing"
 	"time"
 )
@@ -13,7 +14,7 @@ func TestAuthorizationCodeFlowIsRedactedAndOrdered(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create flow: %v", err)
 	}
-	if flow.Status != "completed" || flow.Scenario.ID != ScenarioSecure || len(flow.Events) != 6 {
+	if flow.Status != "completed" || flow.Scenario.ID != ScenarioSecure || len(flow.Events) != 7 {
 		t.Fatalf("unexpected secure flow: status=%q scenario=%q events=%d", flow.Status, flow.Scenario.ID, len(flow.Events))
 	}
 	for index, event := range flow.Events {
@@ -24,27 +25,43 @@ func TestAuthorizationCodeFlowIsRedactedAndOrdered(t *testing.T) {
 			t.Errorf("event %d has no learner explanation", event.Sequence)
 		}
 		for _, parameter := range event.Parameters {
-			if parameter == "code=demo-code" || parameter == "access_token=demo-token" {
-				t.Errorf("event %d contains an unredacted secret: %s", index+1, parameter)
+			parts := strings.SplitN(parameter, "=", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			var expected string
+			switch parts[0] {
+			case "code", "state", "code_challenge", "access_token":
+				expected = "********"
+			case "code_verifier":
+				expected = "omitted"
+			case "Authorization":
+				expected = "Bearer ********"
+			}
+			if expected != "" && parts[1] != expected {
+				t.Errorf("event %d has unredacted %s value %q", index+1, parts[0], parts[1])
 			}
 		}
 	}
 }
 
-func TestMissingStateBlocksCallbackBeforeTokenExchange(t *testing.T) {
+func TestMissingStateAcceptsCallbackButPKCEBlocksInjectedCode(t *testing.T) {
 	flow, err := NewAuthorizationCodeFlowForScenario(ScenarioMissingState, testTime)
 	if err != nil {
 		t.Fatalf("create missing-state flow: %v", err)
 	}
-	if flow.Status != "blocked" || len(flow.Events) != 5 {
+	if flow.Status != "blocked_with_finding" || len(flow.Events) != 6 {
 		t.Fatalf("unexpected missing-state flow: status=%q events=%d", flow.Status, len(flow.Events))
 	}
-	if last := flow.Events[len(flow.Events)-1]; last.Type != "callback_rejected" {
-		t.Errorf("last event = %q, want callback_rejected", last.Type)
+	if callback := flow.Events[4]; callback.Type != "callback_accepted_without_state" {
+		t.Errorf("callback event = %q, want callback_accepted_without_state", callback.Type)
+	}
+	if last := flow.Events[len(flow.Events)-1]; last.Type != "code_redemption_rejected" {
+		t.Errorf("last event = %q, want code_redemption_rejected", last.Type)
 	}
 	for _, event := range flow.Events {
-		if event.Type == "code_redeemed" || event.Type == "access_token_issued" {
-			t.Errorf("unexpected token exchange event %q", event.Type)
+		if event.Type == "access_token_issued" || event.Type == "protected_resource_requested" {
+			t.Errorf("unexpected successful event %q after PKCE verifier mismatch", event.Type)
 		}
 	}
 }
@@ -54,11 +71,14 @@ func TestMissingPKCEShowsInterceptedCodeRedemption(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create missing-pkce flow: %v", err)
 	}
-	if flow.Status != "completed_with_finding" || len(flow.Findings) != 1 {
+	if flow.Status != "completed_with_finding" || len(flow.Findings) != 1 || len(flow.Events) != 7 {
 		t.Fatalf("unexpected missing-pkce flow: status=%q findings=%d", flow.Status, len(flow.Findings))
 	}
 	if event := flow.Events[4]; event.Actor != "attacker" || event.Type != "intercepted_code_redeemed" {
 		t.Errorf("unexpected interception event: %#v", event)
+	}
+	if last := flow.Events[len(flow.Events)-1]; last.Type != "protected_resource_requested" {
+		t.Errorf("last event = %q, want protected_resource_requested", last.Type)
 	}
 }
 

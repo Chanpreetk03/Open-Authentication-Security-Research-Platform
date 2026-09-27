@@ -10,9 +10,11 @@ security decisions, and implementation plans. Start with [the product vision](do
 
 ## First implementation
 
-The first vertical slice is the local OAuth 2.0 authorization-code flow
-explorer. It renders ordered, redacted protocol events from a Go API in a
-React and TypeScript web client.
+The first vertical slice is a simulated OAuth 2.0 authorization-code flow
+explorer. It follows the authorization request through access to a synthetic
+protected resource, with selectable state and PKCE failure scenarios. The Go
+API returns redacted events and per-exchange explanations to the React and
+TypeScript web client.
 
 Start the API from `backend/`:
 

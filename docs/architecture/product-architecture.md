@@ -99,6 +99,12 @@ Protocol adapters translate OAuth/OIDC, JWT, SAML, LDAP, and Kerberos events
 into this model. The adapter owns parsing and protocol-specific details; the
 Studio interface owns ordering, filtering, redaction display, and explanation.
 
+The current OAuth explorer begins this separation in the web client: its
+`web/src/protocols/oauth.ts` adapter translates the OAuth API DTO into the
+normalized exchange consumed by the timeline. This is a client-side boundary,
+not yet the shared Lab control-plane contract described elsewhere in this
+document.
+
 This is a deep module: callers should not need to understand every wire
 format to render a flow, compare a vulnerable and secure exchange, or attach a
 verification result.

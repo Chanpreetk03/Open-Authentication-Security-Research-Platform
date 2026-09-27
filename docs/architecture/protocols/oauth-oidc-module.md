@@ -29,7 +29,7 @@ which trust assumption makes the next message valid.
 
 ## Internal module structure
 
-The concrete Go implementation should be organized around protocol concepts:
+The target Go implementation should be organized around protocol concepts:
 
 ```text
 oauthoidc/
@@ -46,9 +46,12 @@ oauthoidc/
   tests/          protocol, security, and exercise tests
 ```
 
-These are implementation packages behind the protocol module interface. The
-Lab control plane should not import individual packages such as `token` or
-`authorize` directly.
+These packages describe the intended protocol module boundary. The current
+vertical slice is a deterministic, in-memory simulator in `oauthoidc/flow.go`;
+it emits illustrative events and is not a live authorization server, OIDC
+provider, client, or resource server. The Lab control plane should not import
+individual packages such as `token` or `authorize` directly as those are
+introduced.
 
 ## Protocol state machines
 
@@ -105,7 +108,8 @@ Secure behavior:
 - exact redirect URI matching;
 - short-lived, single-use authorization code;
 - client binding;
-- authorization-code exchange over a protected channel.
+- authorization-code exchange over a protected channel;
+- access-token use at a resource server limited to the granted scope.
 
 Evidence:
 
@@ -114,7 +118,8 @@ Evidence:
 - redirect containing code;
 - token request;
 - token response;
-- code invalidation.
+- code invalidation;
+- protected resource request and response.
 
 ### Exercise 2: Public clients and PKCE
 
@@ -257,11 +262,19 @@ Expect: login is rejected
 Observe: callback_rejected with reason state_mismatch
 ```
 
-## First implementation boundary
+## Implementation boundary
 
-The first implementation should include one demo client, one authorization
-server/OIDC provider, one resource server, and one browser-facing flow. It
-should not yet implement a generalized multi-provider federation layer.
+The current first implementation is a local deterministic simulation of one
+demo client, authorization server, and resource server. The API returns
+synthetic protocol events; it does not run a browser redirect, authenticate a
+user, issue or validate real credentials, or contact a provider. The web
+client adapts the OAuth-specific API response into the normalized
+`ProtocolExchange` shape defined in `product-architecture.md`, so the timeline
+does not depend on OAuth event field names.
+
+The next implementation step for this module is to turn the simulation into
+isolated, executable protocol actors and a browser-facing flow. A generalized
+multi-provider federation layer remains out of scope until then.
 
 The module should expose a small protocol-neutral result to the Lab:
 

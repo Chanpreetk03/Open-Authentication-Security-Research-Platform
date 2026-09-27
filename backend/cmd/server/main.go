@@ -35,7 +35,7 @@ func main() {
 		writeJSON(w, http.StatusOK, oauthoidc.Scenarios())
 	})
 
-	server := &http.Server{Addr: ":8080", Handler: withCORS(mux)}
+	server := &http.Server{Addr: "127.0.0.1:8080", Handler: withCORS(mux)}
 	log.Println("OAuth/OIDC explorer API listening on http://localhost:8080")
 	log.Fatal(server.ListenAndServe())
 }
