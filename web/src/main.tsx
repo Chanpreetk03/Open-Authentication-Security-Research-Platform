@@ -1,5 +1,6 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { JwtInspector } from "./components/JwtInspector";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -8,6 +9,17 @@ function displayName(value: string) {
 }
 
 function App() {
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt">("oauth");
+  return <main className="studio-shell">
+    <nav className="tool-switcher" aria-label="Protocol Studio tools">
+      <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
+      <button type="button" aria-current={activeTool === "jwt" ? "page" : undefined} onClick={() => setActiveTool("jwt")}>JWT inspector</button>
+    </nav>
+    {activeTool === "oauth" ? <OAuthExplorer /> : <JwtInspector />}
+  </main>;
+}
+
+function OAuthExplorer() {
   const [flow, setFlow] = useState<ProtocolExchange | null>(null);
   const [scenarios, setScenarios] = useState<ScenarioDescriptor[]>([]);
   const [selectedScenario, setSelectedScenario] = useState("secure");
@@ -43,7 +55,7 @@ function App() {
 
   const activeEvent = flow?.messages.find((message) => message.sequence === selectedEvent);
 
-  return <main>
+  return <>
     <header className="hero">
       <p className="eyebrow">Protocol Studio / OAuth 2.0</p>
       <h1>See the flow. Inspect the decision. Learn the defense.</h1>
@@ -116,7 +128,7 @@ function App() {
         </aside>}
       </div>
     </section>}
-  </main>;
+  </>;
 }
 
 createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);

@@ -142,6 +142,9 @@ management, and audit should be compared across modules.
 The concrete design for this module is documented in the [OAuth/OIDC module
 architecture](protocols/oauth-oidc-module.md).
 
+The JWT inspection tool's initial boundary and security limitations are
+documented in the [JWT inspector architecture](protocols/jwt-inspector.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.
