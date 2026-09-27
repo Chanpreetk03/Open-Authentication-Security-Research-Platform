@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { JwtInspector } from "./components/JwtInspector";
 import { RequestInspector } from "./components/RequestInspector";
+import { DefenseInDepthLesson } from "./components/DefenseInDepthLesson";
 import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
 import "./styles.css";
 
@@ -10,14 +11,15 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http">("oauth");
+  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy">("oauth");
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
       <button type="button" aria-current={activeTool === "jwt" ? "page" : undefined} onClick={() => setActiveTool("jwt")}>JWT inspector</button>
       <button type="button" aria-current={activeTool === "http" ? "page" : undefined} onClick={() => setActiveTool("http")}>Request inspector</button>
+      <button type="button" aria-current={activeTool === "academy" ? "page" : undefined} onClick={() => setActiveTool("academy")}>Academy</button>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : <RequestInspector />}
+    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : <DefenseInDepthLesson />}
   </main>;
 }
 

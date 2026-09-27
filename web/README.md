@@ -10,7 +10,9 @@ npm run dev
 The Studio currently includes an OAuth/OIDC flow explorer, a browser-only JWT
 inspector, and an offline HTTP request/redirect inspector. The Vite development
 server proxies OAuth `/api` requests to the Go API at `http://localhost:8080`;
-the JWT and HTTP inspectors do not call the API.
+the JWT and HTTP inspectors do not call the API. The Academy's OAuth lesson
+uses the API's synthetic OAuth scenarios to provide attack and verification
+evidence.
 
 The JWT inspector only decodes three-part compact JWS tokens. It does not
 verify signatures, establish issuer trust, or decrypt five-part JWE tokens.

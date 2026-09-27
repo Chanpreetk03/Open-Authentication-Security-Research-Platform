@@ -126,6 +126,11 @@ Academy modules invoke Lab scenarios and Studio observations through stable
 interfaces. They do not directly manipulate scenario containers, credentials,
 or database records.
 
+The first Academy vertical is the Defense in Depth OAuth exercise. Its web
+module invokes the existing OAuth scenario adapter and verifies evidence from
+the returned normalized exchange; it does not duplicate protocol behavior or
+introduce a separate attack implementation.
+
 ### Reference Identity Engine
 
 The Engine provides reusable sandbox identity capabilities:

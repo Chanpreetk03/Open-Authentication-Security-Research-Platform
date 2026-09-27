@@ -16,7 +16,8 @@ protected resource, with selectable state and PKCE failure scenarios. The Go
 API returns redacted events and per-exchange explanations to the React and
 TypeScript web client. Protocol Studio also includes a browser-local JWT
 inspector and offline HTTP request/redirect inspector; neither sends user input
-to the API.
+to the API. The Cybersecurity Principles Academy includes a guided
+defense-in-depth exercise based on the synthetic OAuth scenarios.
 
 Start the API from `backend/`:
 
