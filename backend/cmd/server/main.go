@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -14,13 +15,24 @@ func main() {
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
-	mux.HandleFunc("GET /api/flows/oauth/authorization-code", func(w http.ResponseWriter, _ *http.Request) {
-		flow, err := oauthoidc.NewAuthorizationCodeFlow(time.Now().UTC())
+	mux.HandleFunc("GET /api/flows/oauth/authorization-code", func(w http.ResponseWriter, r *http.Request) {
+		scenario := r.URL.Query().Get("scenario")
+		if scenario == "" {
+			scenario = oauthoidc.ScenarioSecure
+		}
+		flow, err := oauthoidc.NewAuthorizationCodeFlowForScenario(scenario, time.Now().UTC())
 		if err != nil {
+			if errors.Is(err, oauthoidc.ErrUnsupportedScenario) {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return
+			}
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		writeJSON(w, http.StatusOK, flow)
+	})
+	mux.HandleFunc("GET /api/flows/oauth/scenarios", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, http.StatusOK, oauthoidc.Scenarios())
 	})
 
 	server := &http.Server{Addr: ":8080", Handler: withCORS(mux)}
