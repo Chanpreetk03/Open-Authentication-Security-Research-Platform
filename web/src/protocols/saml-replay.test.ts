@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlAudienceScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario } from "./saml-replay";
+import { loadSamlAudienceScenarios, loadSamlConditionsScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, runSamlAudienceScenario, runSamlConditionsScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -116,5 +116,25 @@ describe("SAML replay API adapter", () => {
     expect(scenarios[0].secure).toBe(true);
     expect(exchange.messages[0].label).toBe("recipient_evaluated");
     expect(exchange.messages[0].outcome).toBe("recipient match = false");
+  });
+
+  it("uses the conditions API contract and maps the clock-window decision", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "conditions-enforced", name: "Enforce time window", description: "Reject expired assertions", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_conditions_demo", protocol: "SAML 2.0", status: "expired_rejected",
+        scenario: { id: "conditions-enforced", name: "Enforce time window", description: "Reject expired assertions", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "conditions_evaluated", method: "INTERNAL", uri: "ACS time policy", parameters: ["allowed_skew=30s"], security_properties: ["NotBefore inclusive", "NotOnOrAfter exclusive"], outcome: "within condition window = false", explanation: { heading: "Evaluate time", what_happened: "Expired", why_it_matters: "Reject stale assertions." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "Expired response rejected.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlConditionsScenarios();
+    const exchange = await runSamlConditionsScenario("conditions-enforced");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/conditions/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/conditions?scenario=conditions-enforced");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.messages[0].outcome).toBe("within condition window = false");
+    expect(exchange.messages[0].securityClaims).toContain("NotOnOrAfter exclusive");
   });
 });

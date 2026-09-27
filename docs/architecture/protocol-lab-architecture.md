@@ -166,6 +166,9 @@ The SAML relying-party audience evaluation exercise is documented in the
 The SAML bearer recipient validation exercise is documented in the
 [SAML recipient lab architecture](protocols/saml-recipient-lab.md).
 
+The SAML assertion time-window exercise is documented in the
+[SAML conditions lab architecture](protocols/saml-conditions-lab.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.
