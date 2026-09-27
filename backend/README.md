@@ -12,6 +12,8 @@ The explorer exposes:
 
 - `GET /api/health`
 - `GET /api/flows/oauth/scenarios`
+- `GET /api/flows/saml/scenarios`
+- `GET /api/flows/saml/replay?scenario=replay-protected|replay-disabled`
 - `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
 
 The secure reference flow runs from authorization request through a synthetic

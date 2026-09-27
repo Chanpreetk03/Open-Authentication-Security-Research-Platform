@@ -8,9 +8,16 @@ import (
 	"time"
 
 	"github.com/iam-platform/backend/internal/oauthoidc"
+	"github.com/iam-platform/backend/internal/saml"
 )
 
 func main() {
+	server := &http.Server{Addr: "127.0.0.1:8080", Handler: newHandler()}
+	log.Println("IAM Platform API listening on http://localhost:8080")
+	log.Fatal(server.ListenAndServe())
+}
+
+func newHandler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
@@ -34,10 +41,27 @@ func main() {
 	mux.HandleFunc("GET /api/flows/oauth/scenarios", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, oauthoidc.Scenarios())
 	})
+	mux.HandleFunc("GET /api/flows/saml/replay", func(w http.ResponseWriter, r *http.Request) {
+		scenario := r.URL.Query().Get("scenario")
+		if scenario == "" {
+			scenario = saml.ScenarioReplayProtected
+		}
+		flow, err := saml.NewReplayFlow(scenario, time.Now().UTC())
+		if err != nil {
+			if errors.Is(err, saml.ErrUnsupportedScenario) {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, flow)
+	})
+	mux.HandleFunc("GET /api/flows/saml/scenarios", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, http.StatusOK, saml.Scenarios())
+	})
 
-	server := &http.Server{Addr: "127.0.0.1:8080", Handler: withCORS(mux)}
-	log.Println("OAuth/OIDC explorer API listening on http://localhost:8080")
-	log.Fatal(server.ListenAndServe())
+	return withCORS(mux)
 }
 
 func withCORS(next http.Handler) http.Handler {

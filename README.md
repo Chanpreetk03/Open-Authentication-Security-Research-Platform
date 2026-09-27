@@ -20,7 +20,8 @@ viewer; none sends user input to the API. The SAML viewer parses raw XML or a
 Base64 `SAMLResponse`, masks subject/attribute values initially, and does not
 validate signatures, issuer trust, or relying-party acceptance. A separate
 local metadata inspector lists federation entities and endpoints without
-verifying their trust. The
+verifying their trust, while a synthetic SAML replay lab demonstrates
+assertion-ID replay-cache behavior without processing real SAML messages. The
 Cybersecurity Principles Academy includes a guided
 defense-in-depth exercise based on the synthetic OAuth scenarios.
 

@@ -154,6 +154,9 @@ documented in the [SAML assertion viewer architecture](protocols/saml-assertion-
 The browser-local federation metadata inspection boundary is documented in the
 [SAML metadata inspector architecture](protocols/saml-metadata-inspector.md).
 
+The synthetic SAML browser-SSO replay exercise boundary is documented in the
+[SAML replay lab architecture](protocols/saml-replay-lab.md).
+
 The first module should be split into independently understandable exercises:
 
 1. OAuth authorization-code flow without OIDC.
