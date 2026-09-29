@@ -41,6 +41,10 @@ func TestSAMLReplayRoutes(t *testing.T) {
 		{name: "default signature-binding trace", path: "/api/flows/saml/signature-binding", statusCode: http.StatusOK, wantStatus: "unverified_node_rejected"},
 		{name: "signature binding ignored trace", path: "/api/flows/saml/signature-binding?scenario=signature-binding-ignored", statusCode: http.StatusOK, wantStatus: "unverified_node_accepted"},
 		{name: "unsupported signature-binding scenario", path: "/api/flows/saml/signature-binding?scenario=unknown", statusCode: http.StatusBadRequest},
+		{name: "subject-confirmation scenario catalog", path: "/api/flows/saml/subject-confirmation/scenarios", statusCode: http.StatusOK},
+		{name: "default subject-confirmation trace", path: "/api/flows/saml/subject-confirmation", statusCode: http.StatusOK, wantStatus: "no_valid_confirmation_rejected"},
+		{name: "mixed subject-confirmation trace", path: "/api/flows/saml/subject-confirmation?scenario=subject-confirmation-mixed", statusCode: http.StatusOK, wantStatus: "mixed_confirmation_accepted"},
+		{name: "unsupported subject-confirmation scenario", path: "/api/flows/saml/subject-confirmation?scenario=unknown", statusCode: http.StatusBadRequest},
 	}
 
 	for _, test := range tests {

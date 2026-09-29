@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSamlAudienceScenarios, loadSamlConditionsScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, loadSamlSignatureBindingScenarios, runSamlAudienceScenario, runSamlConditionsScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario, runSamlSignatureBindingScenario } from "./saml-replay";
+import { loadSamlAudienceScenarios, loadSamlConditionsScenarios, loadSamlCorrelationScenarios, loadSamlRecipientScenarios, loadSamlReplayScenarios, loadSamlSignatureBindingScenarios, loadSamlSubjectConfirmationScenarios, runSamlAudienceScenario, runSamlConditionsScenario, runSamlCorrelationScenario, runSamlRecipientScenario, runSamlReplayScenario, runSamlSignatureBindingScenario, runSamlSubjectConfirmationScenario } from "./saml-replay";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -155,5 +155,24 @@ describe("SAML replay API adapter", () => {
     expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/signature-binding?scenario=signature-binding-enforced");
     expect(scenarios[0].secure).toBe(true);
     expect(exchange.messages[0].outcome).toBe("consumes verified node = false");
+  });
+
+  it("uses the subject-confirmation API and maps whole-candidate evidence", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: "subject-confirmation-enforced", name: "Validate one complete confirmation", description: "Evaluate per candidate", secure: true }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({
+        id: "saml_subject_confirmation_demo", protocol: "SAML 2.0", status: "no_valid_confirmation_rejected",
+        scenario: { id: "subject-confirmation-enforced", name: "Validate one complete confirmation", description: "Evaluate per candidate", secure: true },
+        events: [{ sequence: 1, actor: "service_provider", type: "candidate_evaluation_completed", method: "INTERNAL", uri: "ACS bearer confirmation policy", parameters: ["candidate_1_valid=false", "candidate_2_valid=false"], security_properties: ["all fields checked per candidate"], outcome: "complete-candidate result = false", explanation: { heading: "Evaluate candidates independently", what_happened: "No candidate passes all checks", why_it_matters: "Do not combine fields across alternatives." }, timestamp: "2026-09-27T12:00:00Z" }],
+        findings: [], learning_outcome: "No complete candidate passed.",
+      }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const scenarios = await loadSamlSubjectConfirmationScenarios();
+    const exchange = await runSamlSubjectConfirmationScenario("subject-confirmation-enforced");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/flows/saml/subject-confirmation/scenarios");
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/flows/saml/subject-confirmation?scenario=subject-confirmation-enforced");
+    expect(scenarios[0].secure).toBe(true);
+    expect(exchange.messages[0].outcome).toBe("complete-candidate result = false");
   });
 });

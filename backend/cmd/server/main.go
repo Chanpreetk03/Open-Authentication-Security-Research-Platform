@@ -155,6 +155,25 @@ func newHandler() http.Handler {
 	mux.HandleFunc("GET /api/flows/saml/signature-binding/scenarios", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, saml.SignatureBindingScenarios())
 	})
+	mux.HandleFunc("GET /api/flows/saml/subject-confirmation", func(w http.ResponseWriter, r *http.Request) {
+		scenario := r.URL.Query().Get("scenario")
+		if scenario == "" {
+			scenario = saml.ScenarioSubjectConfirmationEnforced
+		}
+		flow, err := saml.NewSubjectConfirmationFlow(scenario, time.Now().UTC())
+		if err != nil {
+			if errors.Is(err, saml.ErrUnsupportedScenario) {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, flow)
+	})
+	mux.HandleFunc("GET /api/flows/saml/subject-confirmation/scenarios", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, http.StatusOK, saml.SubjectConfirmationScenarios())
+	})
 
 	return withCORS(mux)
 }

@@ -71,6 +71,14 @@ export async function runSamlSignatureBindingScenario(scenarioId: string): Promi
   return runSamlScenario("/api/flows/saml/signature-binding", scenarioId, "SAML signature-binding");
 }
 
+export async function loadSamlSubjectConfirmationScenarios(): Promise<ScenarioDescriptor[]> {
+  return loadScenarios("/api/flows/saml/subject-confirmation/scenarios", "SAML subject-confirmation lab");
+}
+
+export async function runSamlSubjectConfirmationScenario(scenarioId: string): Promise<ProtocolExchange> {
+  return runSamlScenario("/api/flows/saml/subject-confirmation", scenarioId, "SAML subject-confirmation");
+}
+
 async function loadScenarios(endpoint: string, label: string): Promise<ScenarioDescriptor[]> {
   const response = await fetch(endpoint);
   if (!response.ok) throw new Error(`The ${label} API is unavailable.`);
