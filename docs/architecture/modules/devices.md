@@ -1,5 +1,5 @@
-# Devices
+﻿# Device and Authenticator Fixtures
 
-Devices are a future identity and authentication concern. Device identity,
-trust, enrollment, and recovery must be defined before implementation.
+Device trust is not a platform device-management product. A WebAuthn or MFA pack may model a synthetic authenticator or use a browser test authenticator to demonstrate registration, challenge, assertion, and recovery behavior.
 
+Keep authenticator keys and state scoped to a disposable scenario. Do not enroll or manage a user's real device as part of the attack lab.

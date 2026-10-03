@@ -1,63 +1,50 @@
-# System Overview
+﻿# System Overview
 
-The platform is a local-first, modular Authentication and Cybersecurity
-Principles platform. It combines educational labs, protocol inspection tools,
-security exercises, and a small reference identity engine.
+The product is an authentication protocol workbench paired with a safe, resettable attack sandbox. It helps users configure flows, run them against local or explicitly authorized targets, inspect messages, verify protocol properties, and compare vulnerable and secure behavior.
 
-The initial architecture is a modular monolith. Boundaries should be explicit,
-but independently deployed services are deferred until a concrete scaling,
-security, reliability, or ownership need is demonstrated.
-
-The product-level arrangement of these modules and experiences is defined in
-the [product architecture](product-architecture.md).
+It is not a general-purpose identity provider or IAM service. Identity providers, clients, resource servers, relying parties, directories, and KDCs are protocol actors hosted as test fixtures or selected external targets.
 
 ## Product components
 
-### Authentication Lab
+### Workbench
 
-Runs isolated vulnerable and secure protocol scenarios with resettable state,
-controlled attack conditions, and verification tests.
+Collections and environments organize protocol flows, endpoint settings, assertions, and local secret references. The runner executes a saved task and returns a redacted, versioned run report.
 
-### Protocol Studio
+### Protocol packs
 
-Provides flow visualization and inspection for redirects, requests, claims,
-tokens, assertions, tickets, signatures, and other protocol messages.
+Each pack owns its wire formats, state machine, security checks, errors, version/profile metadata, parsers, and attack variants. The first product depth is OAuth 2.0, OpenID Connect, JWT/JWS/JWE, and HTTP. SAML follows, then WebAuthn/passkeys, LDAP/Active Directory, Kerberos, and additional mechanisms.
 
-### Cybersecurity Principles Academy
+### Trace and evidence layer
 
-Connects principles such as least privilege, secure defaults, defense in depth,
-threat modeling, secrets management, and safe failure to executable examples,
-attacks, mitigations, and exercises.
+The shared layer orders messages, identifies participants, records timestamps, redaction state, checks, and evidence links. It preserves protocol-specific payloads and never treats parsing as proof of authenticity.
 
-### Reference Identity Engine
+### Scenario control plane
 
-Provides reusable sandbox capabilities for identities, credentials,
-authentication, authorization, sessions, tokens, MFA, federation, and audit.
-It supports the labs and Studio; it is not initially a general enterprise IAM
-deployment platform.
+The control plane selects a versioned scenario, provisions synthetic data, starts and stops a run, applies a named exercise step, collects evidence, and resets or destroys the scenario.
 
-### Lab and scenario runtime
+### Scenario runner
 
-Creates, isolates, seeds, observes, resets, and safely destroys learning
-scenarios. Vulnerable educational implementations must remain separated from
-secure reference implementations.
+The runner executes local test peers and vulnerable fixtures behind a narrow isolation boundary. It enforces network, filesystem, resource, time, cleanup, and reset policies. It is replaceable independently from protocol packs.
 
-### Learning and observation layer
+## Main run path
 
-Stores module content, scenario metadata, event traces, explanations, and
-verification results without treating sensitive lab data as production
-identity data.
+```text
+User -> collection/environment -> protocol pack -> scenario runner
+     -> local peers or authorized test target -> observation/redaction
+     -> assertions and evidence -> report -> reset/export
+```
 
-## External integration targets
+## Trust boundaries
 
-OAuth/OIDC providers, SAML identity providers and service providers, LDAP and
-Active Directory directories, Kerberos realms, and test applications are
-controlled protocol targets for learning and integration testing. They are not
-an initial connector marketplace or access-governance surface.
+- User-supplied protocol messages and target configuration are untrusted input.
+- The control plane owns scenario authorization and lifecycle.
+- The runner and each scenario are isolation boundaries.
+- Traces and exports are sensitive data until redacted.
+- External targets are reachable only in explicitly scoped integration mode.
+- The host and other runs must remain inaccessible from a vulnerable target.
+
+See [trust boundaries](trust-boundaries.md), [product architecture](product-architecture.md), and the [research-backed plan](../research/auth-protocol-workbench-and-sandbox.md).
 
 ## Architectural rule
 
-For every proposed boundary or service split, document the improvement in
-independent scaling, security isolation, deployment independence, ownership,
-reliability, data isolation, or lab safety. Avoid distributed complexity that
-does not improve the learning or security outcomes.
+Share lifecycle, resource policy, trace envelope, redaction, assertions, and reporting. Keep protocol parsing, state, validation, cryptography, and attack semantics in their protocol pack. Do not add a platform identity engine or split services unless a concrete execution or isolation need requires it.

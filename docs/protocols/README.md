@@ -1,22 +1,21 @@
-# Protocols
+﻿# Protocol Catalog
 
-## OAuth 2.0
+Protocol coverage grows as versioned packs with declared roles, profiles, capabilities, and maturity. A pack is not considered supported merely because the UI can parse one artifact.
 
-Study Authorization Code, Client Credentials, refresh and access tokens,
-scopes, PKCE, and public versus confidential clients.
+## Current prototype
 
-## OpenID Connect
+- **OAuth 2.0:** deterministic authorization-code event simulator with secure, missing-state, and missing-PKCE scenarios.
+- **JWT/JWS:** browser-local structural decoder; no signature verification or trusted-key resolution.
+- **HTTP:** offline URL and HTTP/1.x request/response inspector; no sending, replay, or capture.
+- **SAML:** browser-local assertion/metadata viewers and synthetic policy traces; no end-to-end SAML implementation.
 
-Study ID tokens, UserInfo, discovery, JWKS, nonce, issuer, audience, and
-signature validation.
+## Planned workbench sequence
 
-## SAML
+1. HTTP, OAuth 2.0, OpenID Connect, JWT/JWS/JWE.
+2. SAML browser SSO and metadata/conformance tests.
+3. WebAuthn/passkeys.
+4. LDAP/Active Directory.
+5. Kerberos.
+6. Additional MFA, federation, provisioning, and cryptographic profiles as justified.
 
-Study IdP/SP relationships, assertions, metadata, signing, encryption, and
-browser SSO.
-
-## LDAP, Active Directory, and Kerberos
-
-Study directory models, DNs, attributes, groups, binds, TLS/LDAPS, AD trusts
-and forests, KDC, AS, TGS, TGTs, service tickets, realms, and replay
-protection.
+For each pack, the goal is an inspectable exchange, explicit trust/validation status, positive and negative checks, safe local target, evidence, and reset. See the [product vision](../product/product-vision.md) and [roadmap](../roadmap/roadmap.md).

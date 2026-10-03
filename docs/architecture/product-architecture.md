@@ -1,277 +1,151 @@
-# Product Architecture
+﻿# Product Architecture
 
 ## Purpose
 
-This document defines the first product-level architecture for the platform.
-It explains how Authentication Lab, Protocol Studio, Cybersecurity Principles
-Academy, and the Reference Identity Engine fit together in a local-first
-modular monolith.
+This document defines the architecture for the authentication protocol workbench and security sandbox. It replaces the earlier proposal for a shared reference identity engine as a product subsystem. The product runs and observes protocol actors; it does not centrally provide IAM for production applications.
 
-The Authentication Lab is specifically a protocol workbench. Its architecture
-for adding OAuth/OIDC, SAML, LDAP, Kerberos, MFA, and passkeys is described in
-the [protocol lab architecture](protocol-lab-architecture.md).
+The architecture prioritizes:
 
-The architecture optimizes for four things:
-
-- observable protocol behavior;
-- safe, resettable attack exercises;
-- reusable identity and security concepts;
-- a clear path from learning experience to executable verification.
-
-It does not define a production multi-tenant IAM architecture.
+- protocol-aware request and flow execution;
+- accurate, inspectable protocol artifacts and state transitions;
+- reusable conformance checks and evidence;
+- safe, resettable vulnerable scenarios;
+- local workspaces and redacted portable reports.
 
 ## Architectural shape
 
-The initial product is one deployable application with explicit internal
-modules and a separate lab execution surface:
-
 ```text
-                         Learner / Developer / Educator
+                         Developer / learner / tester
                                       |
-                         Web application and Studio UI
+                  Workbench: collections, environments, trace UI
                                       |
-                         Platform application interface
+                Control plane: packs, lifecycle, assertions, reports
                                       |
-       +----------------+-------------+------------------+
-       |                |                                |
-  Learning         Protocol                         Lab control
-  experience       observation                      and safety
-       |                |                                |
-       +----------------+-------------+------------------+
+             +------------------------+-----------------------+
+             |                        |                       |
+       Protocol packs          Observation/evidence     Local workspace
+       OAuth/OIDC, JOSE,        normalize/redact         collections,
+       SAML, LDAP, ...          and report               secret references
+             |                        |
+             +------------ Scenario runner ---------------+
                                       |
-                         Reference identity engine
-                                      |
-                     PostgreSQL / local durable state
-
-                    controlled execution seam
-                                      |
-                         Lab runtime / scenario
-                         vulnerable or secure target
+                 Secure/vulnerable peers and test targets
+                    isolated, synthetic, resettable state
 ```
 
-The application owns orchestration, learning content, protocol traces,
-identity-domain behavior, and audit records. A lab is an execution unit with
-its own state and capabilities; it is not allowed to become an alternate path
-into the host or the application database.
+The application can begin as a modular monolith. The scenario runner is a narrow boundary because it executes vulnerable targets and must enforce isolation. It may use a local process or container runtime initially and a stronger sandbox only after a threat review. Do not split other modules into services without a demonstrated reason.
 
-## Product slices
+## Main experiences
 
-### Authentication Lab
+### Workbench
 
-The Lab is responsible for protocol learning, scenario lifecycle, and safe
-execution:
+Collections define repeatable protocol tasks. Environments hold endpoint/configuration values and secret references. A task can call a local scenario or a deliberately scoped external test target. Request authoring is specialized around authentication flows; general API-client breadth is not an MVP goal.
 
-- create a scenario from a versioned definition;
-- provision synthetic identities, keys, clients, and target applications;
-- start, pause, reset, and destroy a scenario;
-- expose only declared scenario endpoints and observations;
-- run attack and verification steps against the scenario;
-- return redacted traces and evidence to the learning interface.
+### Protocol packs
 
-Each protocol is a first-class module with concepts, readable implementation,
-wire observation, secure and vulnerable variants, attack exercises, and
-verification. The Lab control plane uses a protocol-neutral interface so new
-protocols do not require redesigning scenario lifecycle or trace storage.
+A protocol pack owns message parsing/serialization, state machines, protocol-specific cryptography and validation, role/profile metadata, attacks, and assertions. Candidate packs include OAuth/OIDC and JOSE, SAML, WebAuthn, LDAP/Active Directory, and Kerberos.
 
-The Lab does not own general identity policy. It consumes the Reference
-Identity Engine through a narrow scenario adapter and may replace that adapter
-with a deliberately vulnerable implementation inside an isolated scenario.
+### Observation and evidence
 
-### Protocol Studio
+A shared exchange envelope provides event ordering, actors, timestamps, raw/normalized views, redaction labels, assertions, and links to evidence. Protocol-specific fields and decision semantics remain available to the pack and UI.
 
-Studio is an observation and explanation surface. Its core interface is a
-normalized protocol exchange rather than protocol-specific UI code:
+### Scenario control plane
 
-```text
-ProtocolExchange {
-  exchange_id
-  protocol
-  participants
-  messages[]
-  security_claims[]
-  redactions[]
-  timestamps
-  outcome
-}
-```
+The control plane creates a versioned run, checks its declared capabilities, starts and stops targets, executes named steps, records evidence, and resets or destroys state. It does not own end-user identity records, production credentials, or a general policy engine.
 
-Protocol adapters translate OAuth/OIDC, JWT, SAML, LDAP, and Kerberos events
-into this model. The adapter owns parsing and protocol-specific details; the
-Studio interface owns ordering, filtering, redaction display, and explanation.
+### Scenario runner
 
-The current OAuth explorer begins this separation in the web client: its
-`web/src/protocols/oauth.ts` adapter translates the OAuth API DTO into the
-normalized exchange consumed by the timeline. This is a client-side boundary,
-not yet the shared Lab control-plane contract described elsewhere in this
-document.
+The runner hosts the synthetic IdP/client/RP/directory/KDC/attacker fixtures that a pack requires. It enforces target images, per-run networks, resource/time limits, no-egress defaults, loopback ports, cleanup, and reset.
 
-This is a deep module: callers should not need to understand every wire
-format to render a flow, compare a vulnerable and secure exchange, or attach a
-verification result.
+## Product data
 
-### Cybersecurity Principles Academy
+The main entities are protocol packs, collections, environments, scenario definitions, scenario instances, exchanges, assertions, evidence, and reports. Identity-like objects (principal, credential, session, token, group, policy) exist as protocol data or synthetic target state, not as shared platform-owned identity data. See the [domain model](domain-model.md) and [data design](database-design.md).
 
-Academy content is executable learning material, not merely documentation. A
-module consists of:
+## Run flows
 
-- principle and learning objectives;
-- conceptual explanation;
-- runnable example;
-- vulnerable or failed behavior;
-- secure implementation or mitigation;
-- verification exercise;
-- explanation of the observed evidence.
-
-Academy modules invoke Lab scenarios and Studio observations through stable
-interfaces. They do not directly manipulate scenario containers, credentials,
-or database records.
-
-The first Academy vertical is the Defense in Depth OAuth exercise. Its web
-module invokes the existing OAuth scenario adapter and verifies evidence from
-the returned normalized exchange; it does not duplicate protocol behavior or
-introduce a separate attack implementation.
-
-### Reference Identity Engine
-
-The Engine provides reusable sandbox identity capabilities:
-
-- principals, identities, credentials, groups, and external identities;
-- authentication and credential verification;
-- sessions and token metadata;
-- roles, permissions, policies, and authorization decisions;
-- federation configuration;
-- audit events.
-
-Authentication and authorization remain separate modules. Authentication may
-establish a principal and issue a session or token; authorization answers
-whether that principal can perform an action on a resource in context.
-
-The Engine is a reference implementation behind the Lab and Studio. Its
-interface must remain small enough that a scenario can substitute a secure or
-vulnerable adapter without changing the learning experience.
-
-## Internal modules and seams
-
-The first implementation should use these internal modules:
-
-| Module | Owns | External interface |
-|---|---|---|
-| Scenario catalog | Definitions, versions, capabilities, learning metadata | Get scenario definition and prerequisites |
-| Scenario lifecycle | Provision, start, reset, stop, destroy | Operate on a scenario handle |
-| Scenario execution | Controlled commands, attack steps, verification | Run a declared step and return evidence |
-| Protocol observation | Capture, normalize, redact, order traces | Record and query protocol exchanges |
-| Identity engine | Identity, credentials, sessions, tokens | Authenticate, authorize, inspect sandbox state |
-| Learning catalog | Principles, lessons, exercises, explanations | Resolve learning content and progress |
-| Audit | Security-relevant and control-plane events | Append and query audit events |
-
-Each row is a module, not necessarily a process. A seam is justified when the
-implementation can vary, such as secure versus vulnerable scenario targets or
-one protocol parser versus another. A seam should not be introduced only to
-mirror a future microservice.
-
-## Data ownership
-
-PostgreSQL is the initial durable store where persistence is needed. Ownership
-is logical even while tables share one database:
-
-- Identity Engine owns sandbox identities, credentials, sessions, tokens,
-  policies, and federation configuration.
-- Scenario modules own scenario definitions, instances, seed versions, and
-  reset state.
-- Protocol observation owns traces, normalized exchanges, redaction metadata,
-  and verification evidence.
-- Learning catalog owns principles, lessons, exercises, and content versions.
-- Audit owns append-only security and control-plane events.
-
-Modules access another module through its interface rather than shared model
-objects. Database-level separation can be added when a concrete isolation or
-ownership need appears.
-
-Sensitive values are minimized. Passwords, private keys, bearer tokens, and
-raw credentials are never returned as ordinary trace fields. Trace retention,
-redaction, and scenario destruction are explicit policies rather than UI
-behavior.
-
-## Main flows
-
-### Run a learning exercise
+### Execute a collection
 
 ```text
-Learner
-  -> Learning catalog: select exercise
-  -> Scenario lifecycle: create from versioned definition
-  -> Scenario execution: run learner/attack step
-  -> Protocol observation: capture and redact exchanges
-  -> Verification: evaluate expected evidence
-  -> Learning catalog: show explanation and next step
+User selects collection/environment
+  -> validate pack/profile and target scope
+  -> create scenario/run
+  -> execute protocol steps
+  -> collect raw events
+  -> redact and normalize
+  -> evaluate assertions
+  -> display/export report
+  -> reset/destroy run
 ```
 
-### Inspect an authentication flow
+### Run an attack exercise
 
 ```text
-Protocol target
-  -> Protocol adapter: parse protocol events
-  -> Protocol observation: normalize and redact
-  -> Studio: render exchange and trust assumptions
-  -> Learner: inspect claims, messages, failures, and evidence
+User chooses named mutation
+  -> runner confirms target is an isolated vulnerable fixture
+  -> attacker and target interact on scenario-private network
+  -> observation captures outcome and evidence
+  -> same collection runs against secure fixture
+  -> comparison explains control effect
+  -> reset removes target state and temporary keys
 ```
 
-### Make a control-plane change
+### Test an external system
 
 ```text
-UI/API -> authorization -> lifecycle or catalog module
-     -> audit append -> result
+User selects external test target and authorized scope
+  -> show hosts, methods, and test family
+  -> apply constrained active checks
+  -> capture/redact exchange
+  -> stop on scope violation or user request
+  -> export report without credentials
 ```
 
-All scenario lifecycle and administrative operations are authorized and
-audited. A trace is evidence about a scenario, not proof that a real external
-identity or production system was changed.
+External testing is deferred until the local safety boundary is mature. Passive artifact import and parsing remain distinct from active network tests.
 
-## Lab safety architecture
+## Shared platform versus pack-owned behavior
 
-The lab execution seam is the strongest isolation seam in the product.
-Scenario definitions declare:
+| Shared platform | Protocol pack |
+|---|---|
+| Collections and environment lifecycle | Wire formats and serializers |
+| Scenario create/start/stop/reset/destroy | Protocol state machines and actors |
+| Capability/resource enforcement | Protocol cryptography and validation |
+| Event ordering and redaction envelope | Attack mechanics and protocol-specific assertions |
+| Report/export and audit metadata | Role/profile requirements and limitations |
+| Common timeline and evidence UI | Protocol-specific renderers and explanations |
 
-- allowed network destinations;
-- exposed ports and protocol targets;
-- synthetic seed data;
-- resource limits and timeouts;
-- permitted attack operations;
-- observation channels;
-- reset and destruction behavior.
+## Safety architecture
 
-The default posture is no access to the host network, host filesystem, real
-credentials, or unrelated scenarios. Secure and vulnerable targets use
-different execution paths and are labeled in scenario metadata. The platform
-must refuse an undeclared capability rather than relying on the lesson author
-to behave safely.
+Scenario definitions declare an immutable image/version, synthetic seed, ports, internal services, allowed operations, resource/time limits, observation channels, redaction behavior, and reset/destruction policy.
+
+Default posture:
+
+- no Internet or host-network egress from a vulnerable target;
+- no host filesystem mount or runtime socket in a target;
+- a distinct private network and ephemeral state per run;
+- loopback-only published ports;
+- bounded CPU, memory, processes, payload size, and run duration;
+- synthetic credentials and short-lived keys;
+- explicit stop, reset, and destroy controls.
+
+A local container is useful for a single-user development MVP but must not be described as a hardened multi-tenant boundary. Shared-host or hosted hostile workloads require a separate design using a stronger sandbox boundary, network policy, resource controls, monitoring, patching, and abuse response.
 
 ## MVP architecture
 
-The first vertical slice should include:
+1. Versioned pack/collection/environment/run/exchange/assertion/report contracts.
+2. Local OAuth authorization-code + PKCE client, authorization server, callback, and resource server.
+3. OIDC discovery and ID-token validation outcomes.
+4. JWT/JWS/JWE inspect/build/verify tasks with explicit key and algorithm policy.
+5. One shared, redacted trace/evidence UI.
+6. At least one paired OAuth attack/secure scenario and one paired JWT/key-handling scenario.
+7. Prebuilt local targets with scenario reset and defined safety limits.
 
-1. scenario catalog and lifecycle with deterministic reset;
-2. one OAuth/OIDC scenario with secure and vulnerable variants;
-3. normalized protocol exchanges with redaction;
-4. JWT inspection as a Studio tool;
-5. one Academy exercise connecting an attack, mitigation, and verification;
-6. the smallest identity-engine capabilities required by those flows;
-7. auditable control-plane operations.
+The existing deterministic OAuth and synthetic SAML traces are stepping stones. A synthetic trace is not equivalent to a live local protocol exchange or conformance result.
 
-The MVP should not include a general connector marketplace, hosted multi-
-tenancy, enterprise provisioning, or a broad policy engine.
+## Decisions to make against the MVP
 
-## Decisions still required
-
-- Choose the first execution adapter: local process, container, or sandbox
-  runtime.
-- Define the scenario manifest format and capability policy.
-- Decide whether traces are event-sourced, stored as exchange documents, or a
-  combination of both.
-- Define the first public application interface between the web layer and
-  internal modules.
-- Specify the secure/vulnerable implementation packaging and build checks that
-  prevent accidental cross-imports.
-
-These decisions should be made against the first OAuth/OIDC vertical slice,
-not in isolation.
+- Collection and pack descriptor format.
+- Local secret store/reference design.
+- Runner compatibility across supported desktop operating systems.
+- Exact OAuth/OIDC implementation roles and profile.
+- Local run-history storage, if users need it.
+- Stronger sandbox requirements before any hosted execution.

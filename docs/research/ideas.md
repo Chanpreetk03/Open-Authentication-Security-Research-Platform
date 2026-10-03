@@ -1,7 +1,12 @@
-# Ideas
+﻿# Research Backlog
 
-Future investigation areas include protocol visualization, cyber range
-isolation, security-principle learning paths, attack replay, secure coding
-exercises, PKI, key management, WebAuthn, SAML, LDAP, Kerberos, and a plugin
-model for adding labs. Enterprise connectors, access governance, and hosted
-multi-tenancy remain deliberately deferred research topics.
+- Workbench collections, environments, import/export, and secret references.
+- Protocol pack descriptor, version/profile selection, and maturity reporting.
+- Trace normalization that retains protocol-specific message semantics.
+- Local scenario runner isolation, network policy, resource limits, reset, and cleanup.
+- OAuth/OIDC + JOSE end-to-end execution and conformance profiles.
+- SAML test IdP/SP and message mutation profiles.
+- WebAuthn test authenticators, LDAP directories, and Kerberos realms.
+- External target authorization, safe metadata/key retrieval, and CI reports.
+
+Production IAM, access governance, enterprise connector marketplaces, arbitrary public attack targets, and hosted multi-tenant vulnerable labs are outside current scope. See the [research-backed plan](auth-protocol-workbench-and-sandbox.md).

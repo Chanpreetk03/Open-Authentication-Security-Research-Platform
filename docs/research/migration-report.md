@@ -1,4 +1,4 @@
-# IAM Project Migration Report
+﻿# IAM Project Migration Report
 
 ## Scope and source
 
@@ -29,45 +29,12 @@ Migration completed from `.migration/iam-platform-migration/`. The existing repo
 - `docs/architecture/api-design.md`
 - `docs/research/system-design-learning.md`
 
-## Decisions recovered
+## Historical migration context
 
-- The repository is the project source of truth.
-- Start with modular boundaries before extracting services.
-- Keep authentication and authorization separate.
-- Keep architecture documentation current.
-- Product direction includes Student, Developer, and Enterprise tiers.
-- The platform should address broad IAM capabilities, not only login.
+The migration package described a broad IAM platform, enterprise tiers, and a reference identity engine. That direction was first narrowed by ADR-005 and has now been superseded by ADR-007. Those migration statements are retained as historical context, not current requirements.
 
-## Conflicts
+## Current product direction
 
-No substantive conflicts were found. The canonical repository contained only placeholder documents and no contrary decisions, requirements, or code.
+The current product is an authentication protocol workbench and security sandbox. Protocol actors such as identity providers, clients, resource servers, service providers, directories, and KDCs are local fixtures or explicitly scoped test targets; they are not a platform-owned production identity service.
 
-## Unresolved questions
-
-- MVP scope and product-tier feature matrix
-- Tenant isolation model and immutable identifiers
-- Service boundaries and deployment target
-- Database, messaging, consistency, and key-management architecture
-- Token storage, revocation, audit retention, and indexing
-- API contracts and implementation order for authentication protocols
-
-## Discarded information
-
-- No source code was migrated because none was present in the migration package.
-- Hypothetical designs and “candidate” components were recorded as direction, research, or open questions rather than commitments.
-- Duplicate migration instructions and historical process notes were not copied into canonical product documentation.
-
-## Recommended next steps
-
-1. Decide the MVP and tier boundaries.
-2. Turn the domain model into reviewed schema and API proposals.
-3. Define the first modular implementation slice and its security tests.
-4. Add authoritative protocol and security references as research proceeds.
-
-## Product-direction amendment
-
-After the initial migration, the product direction was narrowed to an open
-Authentication and Cybersecurity Principles platform. ADR-005 records the
-decision to prioritize protocol learning, visualization, developer tooling,
-isolated attack-and-defense labs, and secure reference implementations while
-deferring enterprise application connectivity and access governance.
+Current architecture and requirements are maintained in the [product vision](../product/product-vision.md), [PRD](../product/PRD.md), [product architecture](../architecture/product-architecture.md), and [workbench/sandbox plan](auth-protocol-workbench-and-sandbox.md).

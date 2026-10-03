@@ -1,33 +1,36 @@
-# Open Authentication & Security Research Platform
+# Open Authentication Protocol Workbench and Security Sandbox
 
-An open Authentication and Cybersecurity Principles platform for learning,
-visualizing, testing, attacking, and securing identity protocols and security
-designs.
+An open, local-first workbench for building, running, inspecting, testing, and
+safely attacking authentication protocol exchanges. The goal is a Postman-like
+developer experience specialized for OAuth/OIDC, tokens and cryptographic
+artifacts, federation protocols, and their security behavior. This is not a
+general-purpose IAM provider or production identity service.
 
 The repository is the source of truth for product requirements, architecture,
-security decisions, and implementation plans. Start with [the product vision](docs/product/product-vision.md),
-[the system overview](docs/architecture/system-overview.md), and [the roadmap](docs/roadmap/roadmap.md).
+security decisions, and implementation plans. Start with the [product
+vision](docs/product/product-vision.md), [research-backed plan](docs/research/auth-protocol-workbench-and-sandbox.md),
+[system overview](docs/architecture/system-overview.md), and [roadmap](docs/roadmap/roadmap.md).
 
-## First implementation
+## Current implementation
 
-The first vertical slice is a simulated OAuth 2.0 authorization-code flow
-explorer. It follows the authorization request through access to a synthetic
-protected resource, with selectable state and PKCE failure scenarios. The Go
-API returns redacted events and per-exchange explanations to the React and
-TypeScript web client. Protocol Studio also includes a browser-local JWT
-inspector, offline HTTP request/redirect inspector, and local SAML assertion
-viewer; none sends user input to the API. The SAML viewer parses raw XML or a
-Base64 `SAMLResponse`, masks subject/attribute values initially, and does not
-validate signatures, issuer trust, or relying-party acceptance. A separate
-local metadata inspector lists federation entities and endpoints without
-verifying their trust, while a synthetic SAML replay lab demonstrates
-assertion-ID replay-cache behavior and a request-correlation lab demonstrates
-account substitution risk. Audience, recipient, time-condition, and
-signature-binding and subject-confirmation labs exercise separate relying-party checks. These labs use
-synthetic traces, not real SAML
-messages. The
-Cybersecurity Principles Academy includes a guided
-defense-in-depth exercise based on the synthetic OAuth scenarios.
+The current application is an early local prototype, not yet the full
+workbench described by the plan. It contains:
+
+- A Go API that returns deterministic synthetic OAuth authorization-code
+  traces for secure, missing-state, and missing-PKCE scenarios.
+- A React/TypeScript UI for those traces and one defense-in-depth lesson.
+- Browser-local JWT decoding, offline HTTP request/redirect inspection, SAML
+  assertion viewing, and SAML metadata inspection.
+- Synthetic SAML exercises for replay, request correlation, audience,
+  recipient, time conditions, signature binding, and subject confirmation.
+
+The OAuth and SAML API exercises emit synthetic traces; they do not run real
+identity providers, authenticate users, or accept uploaded SAML messages. The
+JWT inspector decodes but does not verify signatures. The SAML viewers parse
+locally and do not establish signature or issuer trust. See the [web
+guide](web/README.md) for each tool's boundaries.
+
+## Run locally
 
 Start the API from `backend/`:
 
@@ -35,12 +38,13 @@ Start the API from `backend/`:
 go run ./cmd/server
 ```
 
-Start the web client from `web/` in a second terminal:
+Start the web client from `web/` in another terminal:
 
 ```sh
 npm install
 npm run dev
 ```
 
-See [ADR-006](docs/adr/006-oauth-flow-explorer-mvp.md) for the agreed scope of
-this first slice.
+See [ADR-006](docs/adr/006-oauth-flow-explorer-mvp.md) for the scope of the
+first implemented slice. See [ADR-007](docs/adr/007-auth-protocol-workbench-and-sandbox.md)
+for the current product direction.

@@ -2,26 +2,21 @@
 
 ## Purpose
 
-This is the first protocol module in the Authentication Lab. It teaches the
-protocol from the wire level upward: actors, messages, state transitions,
-cryptographic claims, implementation decisions, failure modes, and secure
-verification.
+This is the first deep protocol pack in the authentication workbench. It supports configuring, running, inspecting, and validating OAuth/OIDC exchanges, with paired security scenarios and evidence.
 
-OAuth 2.0 and OpenID Connect are related but distinct. The module teaches
-OAuth first, then adds OIDC identity semantics on top of the authorization
-flow.
+OAuth 2.0 and OpenID Connect are related but distinct: OAuth delegates access, while OIDC adds an identity layer. The MVP teaches both in one executable workflow and makes their separate tokens, audiences, and validation decisions visible. JWT/JWS/JWE inspection and key/algorithm policy are adjacent workbench capabilities.
 
 ## Actors
 
 The module models these actors explicitly:
 
-- **Resource owner** — the user who authorizes access.
-- **User agent** — the browser carrying redirects, cookies, and responses.
-- **Client** — the application requesting authorization or tokens.
-- **Authorization server** — authenticates the user and issues authorization
+- **Resource owner** â€” the user who authorizes access.
+- **User agent** â€” the browser carrying redirects, cookies, and responses.
+- **Client** â€” the application requesting authorization or tokens.
+- **Authorization server** â€” authenticates the user and issues authorization
   codes and tokens.
-- **Resource server** — accepts and validates access tokens.
-- **OpenID Provider** — the authorization server capabilities used for OIDC,
+- **Resource server** â€” accepts and validates access tokens.
+- **OpenID Provider** â€” the authorization server capabilities used for OIDC,
   including discovery, UserInfo, and ID tokens.
 
 The learner should be able to see which actor initiates every exchange and
@@ -247,10 +242,10 @@ receiving a reusable secret outside the scenario.
 Verification is part of the protocol module, not a UI assertion. Every exercise
 has checks at three levels:
 
-1. **Protocol checks** — messages and state transitions follow the protocol.
-2. **Security checks** — validation and failure behavior meet the exercise's
+1. **Protocol checks** â€” messages and state transitions follow the protocol.
+2. **Security checks** â€” validation and failure behavior meet the exercise's
    security property.
-3. **Learning checks** — the learner can identify the relevant actor, message,
+3. **Learning checks** â€” the learner can identify the relevant actor, message,
    weakness, and mitigation.
 
 Example:
@@ -272,9 +267,7 @@ client adapts the OAuth-specific API response into the normalized
 `ProtocolExchange` shape defined in `product-architecture.md`, so the timeline
 does not depend on OAuth event field names.
 
-The next implementation step for this module is to turn the simulation into
-isolated, executable protocol actors and a browser-facing flow. A generalized
-multi-provider federation layer remains out of scope until then.
+The next implementation step is to replace illustrative events with isolated, executable local protocol actors and a browser-facing flow. External test issuers are a later, explicitly scoped mode; generalized provider discovery and federation orchestration are not the MVP.
 
 The module should expose a small protocol-neutral result to the Lab:
 
@@ -288,10 +281,10 @@ ExerciseResult {
 }
 ```
 
-## Decisions currently proposed
+## Pack decisions
 
-- OAuth 2.0 authorization code is the first executable flow.
-- OIDC is added after the OAuth flow is observable and testable.
+- OAuth authorization-code + PKCE and OIDC validation form the first executable workbench slice.
+- JWT/JOSE inspect/build/verify tasks ship alongside the flows they support.
 - State machines are explicit and tested independently of HTTP handlers.
 - Secure and vulnerable variants are separate implementations.
 - Trace redaction is enforced before data reaches the UI.

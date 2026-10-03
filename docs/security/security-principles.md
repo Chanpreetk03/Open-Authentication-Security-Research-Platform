@@ -1,14 +1,13 @@
-# Security Principles
+﻿# Security Principles
 
-- Security is a first-class architectural concern.
-- Use defense in depth: place distinct, complementary controls at meaningful
-  trust transitions rather than relying on one control to cover every failure.
-- Never store plaintext passwords; use reviewed password-hashing facilities.
-- Treat credentials, tokens, signing keys, and private keys as secrets.
-- Document acquisition, verification, issuance, expiry, revocation, replay
-  protection, and recovery for each authentication flow.
-- Use reviewed standard cryptographic libraries in production; custom
-  cryptography is limited to isolated learning exercises.
+- Keep trust boundaries explicit between the UI, control plane, runner, scenario targets, external systems, and host.
+- Use defense in depth; no one container flag or UI confirmation is a complete isolation boundary.
+- Treat pasted artifacts, metadata, endpoint values, and external-target configuration as untrusted input.
+- Treat credentials, access/refresh tokens, cookies, assertions, signing keys, and private keys as secrets.
+- Redact before traces are persisted or exported; minimize retention and use synthetic secrets by default.
+- Use reviewed libraries for production-relevant cryptographic operations. Teaching examples must be isolated and must not be presented as secure implementations.
+- Separate parse, cryptographic verify, conformance, and relying-party acceptance outcomes.
+- Vulnerable scenarios use synthetic data, per-run isolation, bounded resources, explicit reset, and no egress by default.
+- Active external tests require explicit authorization and a visible target/operation scope.
 
-The first executable learning exercise applies defense in depth to OAuth
-callback correlation and authorization-code binding. See the [Academy lesson](../academy/defense-in-depth-oauth.md).
+The current defense-in-depth OAuth lesson is one learning module using synthetic traces. See the [lesson](../academy/defense-in-depth-oauth.md) and [threat model](threat-model.md).

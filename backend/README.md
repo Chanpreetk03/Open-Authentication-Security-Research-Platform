@@ -1,17 +1,18 @@
-# OAuth/OIDC Explorer API
+﻿# Local Protocol Scenario API
 
-Run the local API from this directory:
+This Go API currently returns synthetic, deterministic OAuth and SAML scenario traces. It is not an identity provider, service provider, conformance server, or attack runner.
+
+Run locally from this directory:
 
 ```sh
 go run ./cmd/server
 ```
 
-The API listens on `127.0.0.1:8080` for local development.
-
-The explorer exposes:
+The API binds to `127.0.0.1:8080`. Endpoints and scenario IDs are listed below. Responses contain synthetic event data and omit or redact protocol secrets.
 
 - `GET /api/health`
 - `GET /api/flows/oauth/scenarios`
+- `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
 - `GET /api/flows/saml/scenarios`
 - `GET /api/flows/saml/replay?scenario=replay-protected|replay-disabled`
 - `GET /api/flows/saml/correlation/scenarios`
@@ -26,10 +27,5 @@ The explorer exposes:
 - `GET /api/flows/saml/signature-binding?scenario=signature-binding-enforced|signature-binding-ignored`
 - `GET /api/flows/saml/subject-confirmation/scenarios`
 - `GET /api/flows/saml/subject-confirmation?scenario=subject-confirmation-enforced|subject-confirmation-mixed`
-- `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
 
-The secure reference flow runs from authorization request through a synthetic
-protected resource request. Failure scenarios are deterministic simulations;
-they do not contact external providers or use real credentials or profile data.
-Protocol secrets are redacted or omitted before events are returned to the web
-client.
+See the root [product plan](../docs/research/auth-protocol-workbench-and-sandbox.md) for the target workbench and runner architecture.

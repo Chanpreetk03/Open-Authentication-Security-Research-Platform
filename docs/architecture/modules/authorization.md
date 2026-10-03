@@ -1,13 +1,5 @@
-# Authorization
+﻿# Authorization Concepts in Protocol Tests
 
-Authorization evaluates permissions after authentication. Its concepts include
-principal, resource, action, permission, role, policy, claim, and context.
-Start with RBAC and centralize policy evaluation where practical, accounting
-for latency, availability, and failure behavior.
+The workbench is not a central authorization or policy engine. Authorization decisions may be modeled by a synthetic resource server or relying party when a protocol test needs to demonstrate scope, role, audience, or access-control behavior.
 
-Authorization evaluates permissions after authentication. The conceptual
-inputs are principal, resource, action, permission, role, policy, claim, and
-context.
-
-Start with RBAC and centralize policy evaluation where practical, while
-accounting for latency, availability, and failure behavior.
+Keep those rules in the target/profile that owns them. A trace should show which target made the decision and what evidence it used; do not infer a general authorization decision from successful authentication.

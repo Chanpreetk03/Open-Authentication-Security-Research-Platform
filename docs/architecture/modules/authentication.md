@@ -1,13 +1,5 @@
-# Authentication
+﻿# Authentication Protocol Concepts
 
-Authentication establishes identity and remains separate from authorization.
-The module owns credential verification and issuance, expiry, revocation,
-replay protection, and recovery behavior for sessions or tokens. Study
-passwords, MFA, OAuth/OIDC, SAML, LDAP/Active Directory, and Kerberos.
+This note does not define a shared authentication service. Authentication behavior belongs to the protocol pack or test target that implements the relevant flow: password exchange, OAuth/OIDC, SAML, LDAP bind, Kerberos, MFA, or WebAuthn.
 
-Authentication establishes identity and remains separate from authorization.
-The module owns credential verification and the issuance, expiry, revocation,
-replay protection, and recovery behavior of sessions or tokens.
-
-Study and support paths for password authentication, MFA, OAuth/OIDC, SAML,
-LDAP/Active Directory, and Kerberos as the platform evolves.
+Each pack documents credential handling, challenges, verification, expiry, replay, failure, and recovery semantics for that protocol. Use reviewed libraries for security-sensitive operations. Targets use synthetic users and credentials and are destroyed or reset with the scenario.

@@ -1,228 +1,88 @@
-# Protocol Lab Architecture
+﻿# Protocol Pack and Lab Architecture
 
 ## Product focus
 
-The Authentication Lab is a protocol workbench. Its primary purpose is to
-teach how authentication protocols are constructed, implemented, observed,
-attacked, and secured.
+The product is an authentication protocol workbench with an isolated attack sandbox. It helps users construct and run flows, observe protocol messages, validate behavior, and reproduce controlled weaknesses. The product is organized around protocol packs, not around a shared production identity engine.
 
-The platform should therefore be organized around protocol modules rather than
-around one identity product. OAuth/OIDC is the first module because it teaches
-redirects, clients, authorization, tokens, claims, signatures, and trust
-relationships. The same Lab architecture must later support SAML, LDAP,
-Kerberos, MFA, and passkeys without redesigning the control plane.
+OAuth/OIDC and JWT/JOSE are the first deep work area. SAML follows, then WebAuthn/passkeys, LDAP/Active Directory, Kerberos, and other mechanisms as complete packs.
 
-## What a protocol module contains
+## What a protocol pack contains
 
-Every protocol module should provide the same learning surfaces:
+A mature pack should provide:
 
-1. **Concepts** — terminology, actors, messages, state, and trust assumptions.
-2. **Implementation** — a small readable implementation of the protocol.
-3. **Wire observation** — requests, responses, redirects, tickets, assertions,
-   claims, or challenges rendered as structured events.
-4. **Secure implementation** — the recommended validation, cryptography, and
-   failure behavior.
-5. **Vulnerable implementation** — intentionally flawed code, isolated and
-   clearly labeled.
-6. **Attack exercises** — controlled demonstrations of protocol weaknesses.
-7. **Verification** — tests that prove the secure behavior and expose the
-   vulnerable behavior.
-8. **Integration examples** — a small client and target that show the protocol
-   in use.
+1. **Descriptor:** protocol/version, roles, profiles, actors, trust assumptions, dependencies, capabilities, and maturity.
+2. **Artifacts:** parsers, serializers, and protocol-specific message views.
+3. **Execution:** local actor fixtures and supported run steps.
+4. **Validation:** protocol checks, conformance assertions, and evidence format.
+5. **Security scenarios:** named secure and vulnerable variants with explicit preconditions and reset behavior.
+6. **Observation:** protocol-specific trace details adapted to the shared exchange envelope.
+7. **Learning content:** concise explanation of messages, trust decisions, attacks, and mitigations.
+8. **Verification:** automated positive, negative, redaction, and isolation checks.
 
-This makes “learn the protocol” a complete path from source code to observable
-behavior, rather than a collection of documentation pages.
+A pack may initially support inspection only. Do not call it executable, verified, or conformant until those capabilities exist and are documented.
 
-## Protocol module contract
+## Pack contract
 
-The Lab control plane should interact with each protocol through a small
-module interface:
+The control plane should use a narrow, versioned contract such as:
 
 ```text
-ProtocolModule
+ProtocolPack
 - Describe() -> ProtocolDescriptor
-- CreateScenario(variant, seed) -> ScenarioDefinition
-- StartScenario(definition) -> ScenarioHandle
-- Execute(handle, exerciseStep) -> Evidence
+- CreateScenario(profile, variant, seed) -> ScenarioDefinition
+- Execute(handle, step) -> Evidence
 - Observe(handle) -> ProtocolExchange[]
-- Verify(handle, verification) -> VerificationResult
+- Verify(handle, assertion) -> VerificationResult
 - Reset(handle)
 - Destroy(handle)
 ```
 
-`ProtocolModule` is a product-level interface. A concrete module may contain
-many internal packages for parsers, state machines, cryptography, servers,
-clients, and tests, but those details should not leak into the Lab control
-plane.
+The contract is a product boundary, not a reason to create a plugin runtime immediately. Start with statically linked Go packages and shared JSON schemas; consider third-party packs only after trust, versioning, and review rules are established.
 
-Each `ProtocolDescriptor` declares:
-
-- protocol and version;
-- actors and trust relationships;
-- message types;
-- required capabilities;
-- supported secure and vulnerable variants;
-- learning objectives;
-- available exercises;
-- redaction rules;
-- verification checks.
+Each descriptor declares supported versions/profiles, actor roles, network/filesystem needs, resource limits, secrets, redaction rules, secure/vulnerable variants, and verification checks.
 
 ## Shared platform versus protocol-specific code
 
-The platform should share infrastructure, not protocol semantics.
+### Shared capabilities
 
-### Shared platform capabilities
+- collections, environments, and local secret references;
+- scenario lifecycle, budgets, capability checks, and reset;
+- event capture, ordering, redaction, reports, and audit metadata;
+- conformance/evidence result envelope;
+- common request, trace, artifact, and comparison UI.
 
-- scenario lifecycle and reset;
-- synthetic seed data;
-- capability and resource policy;
-- event capture and redaction;
-- trace storage;
-- exercise orchestration;
-- verification result format;
-- audit events;
-- learning-content metadata;
-- UI primitives for timelines, messages, claims, and trust boundaries.
+### Pack-owned capabilities
 
-### Protocol-owned capabilities
+- wire encoding and parsing;
+- protocol state and actor behavior;
+- algorithm and key validation;
+- protocol-specific error handling and trust semantics;
+- attack mutations and secure behavior;
+- test vectors, profiles, and explanations.
 
-- wire format parsing and serialization;
-- protocol state machines;
-- protocol-specific cryptographic rules;
-- message validation;
-- actor behavior;
-- protocol error handling;
-- attack mechanics;
-- secure and vulnerable implementations;
-- protocol-specific explanations and tests.
-
-This division prevents a generic “authentication engine” from flattening the
-differences between OAuth redirects, SAML assertions, LDAP binds, Kerberos
-tickets, and passkey ceremonies.
+The workbench must not flatten OAuth redirects, XML assertions, LDAP BER operations, Kerberos tickets, and WebAuthn ceremonies into one generic authentication state machine.
 
 ## Protocol progression
 
-The protocol curriculum should grow in layers:
+1. **Web/token:** HTTP, OAuth 2.0, OIDC, JWT/JWS/JWE, keys, cookies, and sessions.
+2. **Federation:** SAML exchanges, metadata, assertions, signatures, encryption, and replay.
+3. **Public-key browser authentication:** WebAuthn/passkeys and authenticator behavior.
+4. **Directory/ticket protocols:** LDAP/AD and Kerberos.
+5. **Extensions:** MFA methods, SCIM and federation extensions, additional JOSE algorithms, and advanced profiles based on demand.
 
-### Layer 1: Web and token foundations
+The ordering is a product recommendation, not a requirement that all packs share an implementation.
 
-- HTTP requests and responses;
-- cookies and server-side sessions;
-- password authentication;
-- OAuth 2.0 authorization code;
-- PKCE and state;
-- OpenID Connect ID tokens and UserInfo;
-- JWT signing and validation.
+## First work area: OAuth/OIDC and JOSE
 
-### Layer 2: Federation and assertion protocols
+The current code is a deterministic, in-memory OAuth simulator plus browser-local inspectors and synthetic SAML traces. The target MVP is an executable local flow with a client, browser callback, authorization server, and resource server; OIDC discovery and token checks; JWT/JOSE inspect/build/verify workflows; paired attack and secure scenarios; and a redacted report.
 
-- SAML browser SSO;
-- metadata and trust configuration;
-- assertions, signatures, encryption, and replay protection.
+See [OAuth/OIDC pack design](protocols/oauth-oidc-module.md), [JWT inspector boundary](protocols/jwt-inspector.md), and [HTTP inspector boundary](protocols/http-inspector.md).
 
-### Layer 3: Directory and ticket protocols
+## Safety and isolation contract
 
-- LDAP binds, searches, filters, and TLS;
-- Active Directory concepts;
-- Kerberos AS, TGS, TGT, service tickets, and replay protection.
+A scenario declares target image digest/version, seed data, internal endpoints, allowed capabilities, resource/time budgets, observation channels, redaction, and reset/destruction rules. Vulnerable targets run separately from the control plane and from one another, on private per-run networks, with no egress by default. The runner exposes only declared loopback ports and no host mount/runtime socket.
 
-### Layer 4: Stronger and phishing-resistant authentication
+Active external integration is a distinct mode. It requires explicit authorized target scope and is not used as the attack-lab execution environment.
 
-- MFA enrollment and recovery;
-- TOTP and challenge verification;
-- WebAuthn and passkeys;
-- device and authenticator trust.
+## Product direction
 
-The layers are a learning sequence, not a requirement that all protocols share
-one implementation. Shared concepts such as identity, trust, replay, key
-management, and audit should be compared across modules.
-
-## First protocol module: OAuth/OIDC
-
-The concrete design for this module is documented in the [OAuth/OIDC module
-architecture](protocols/oauth-oidc-module.md).
-
-The JWT inspection tool's initial boundary and security limitations are
-documented in the [JWT inspector architecture](protocols/jwt-inspector.md).
-
-The local-only request and redirect inspector boundary is documented in the
-[HTTP inspector architecture](protocols/http-inspector.md).
-
-The local SAML XML assertion viewer and its non-validation boundary are
-documented in the [SAML assertion viewer architecture](protocols/saml-assertion-viewer.md).
-
-The browser-local federation metadata inspection boundary is documented in the
-[SAML metadata inspector architecture](protocols/saml-metadata-inspector.md).
-
-The synthetic SAML browser-SSO replay exercise boundary is documented in the
-[SAML replay lab architecture](protocols/saml-replay-lab.md).
-
-The SAML SP request-correlation exercise boundary is documented in the
-[SAML request-correlation lab architecture](protocols/saml-correlation-lab.md).
-
-The SAML relying-party audience evaluation exercise is documented in the
-[SAML audience lab architecture](protocols/saml-audience-lab.md).
-
-The SAML bearer recipient validation exercise is documented in the
-[SAML recipient lab architecture](protocols/saml-recipient-lab.md).
-
-The SAML assertion time-window exercise is documented in the
-[SAML conditions lab architecture](protocols/saml-conditions-lab.md).
-
-The XML-signature verified-node binding exercise is documented in the
-[SAML signature-binding lab architecture](protocols/saml-signature-binding-lab.md).
-
-The complete bearer SubjectConfirmation candidate evaluation exercise is
-documented in the [SAML subject confirmation lab architecture](protocols/saml-subject-confirmation-lab.md).
-
-The first module should be split into independently understandable exercises:
-
-1. OAuth authorization-code flow without OIDC.
-2. PKCE and public clients.
-3. State and CSRF protection.
-4. OpenID Connect discovery and issuer validation.
-5. ID-token claims, nonce, audience, and signature validation.
-6. Refresh tokens, rotation, expiry, and revocation.
-7. JWT inspection and common validation mistakes.
-
-Each exercise should have a readable implementation, a secure implementation,
-an isolated vulnerable variant where appropriate, an observation trace, and
-automated verification.
-
-## Architecture consequence
-
-The Reference Identity Engine is no longer the primary organizing abstraction.
-It becomes a reusable implementation toolkit used by protocol modules where
-that is pedagogically useful.
-
-For example:
-
-- OAuth/OIDC may use identity, client, consent, token, and signing-key
-  primitives.
-- SAML may use identity, assertion, metadata, and signing-key primitives.
-- LDAP may use directory, bind, DN, attribute, and filter primitives.
-- Kerberos may use principal, realm, key, ticket, and replay-cache primitives.
-
-These primitives can be shared when their semantics genuinely match. The
-protocol module remains responsible for the protocol state machine and wire
-behavior.
-
-## Design rule for future protocols
-
-Adding a protocol should require adding a protocol module and its adapters,
-not changing the Lab control plane. If adding SAML or LDAP requires changing
-the scenario lifecycle, trace storage, exercise orchestration, or verification
-interfaces, the shared interface is too protocol-specific.
-
-## Decisions for the first implementation
-
-The following are proposed, not yet final:
-
-- Protocol modules are first-class product modules.
-- The Lab control plane uses a protocol-neutral module contract.
-- Protocol implementations own their state machines and wire formats.
-- Secure and vulnerable implementations are separate execution paths.
-- The first protocol sequence is OAuth 2.0, OIDC, JWT, then SAML, LDAP,
-  Kerberos, MFA, and passkeys.
-- The first OAuth/OIDC slice is implemented before building generic abstractions
-  for every future protocol.
+The product direction is recorded in [ADR-007](../adr/007-auth-protocol-workbench-and-sandbox.md) and the [workbench/sandbox plan](../research/auth-protocol-workbench-and-sandbox.md). A shared reference identity engine and production IAM service are not product requirements.
