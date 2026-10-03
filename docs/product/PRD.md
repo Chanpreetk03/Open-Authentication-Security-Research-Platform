@@ -170,7 +170,8 @@ why the mitigation works.
 ## 9. Open questions
 
 - Product name and licensing model.
-- First three protocol/security modules for the MVP.
+- Which evidence-selected protocol/security slices should follow the current
+  OAuth/OIDC, JWT, HTTP, and SAML foundation.
 - Lab isolation and reset mechanism.
 - Plugin model for adding protocols and scenarios.
 - Scope of the reference identity engine.
