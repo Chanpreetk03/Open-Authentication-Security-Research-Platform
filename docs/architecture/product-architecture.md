@@ -241,10 +241,20 @@ Scenario definitions declare:
 - reset and destruction behavior.
 
 The default posture is no access to the host network, host filesystem, real
-credentials, or unrelated scenarios. Secure and vulnerable targets use
-different execution paths and are labeled in scenario metadata. The platform
-must refuse an undeclared capability rather than relying on the lesson author
-to behave safely.
+credentials, or unrelated scenarios. The platform may construct private
+per-run roots, bounded scratch, and a scenario-only network for declared
+targets; these resources do not grant host or general network access. Secure
+and vulnerable targets use different execution paths and are labeled in
+scenario metadata. The platform must refuse an undeclared capability rather
+than relying on the lesson author to behave safely.
+
+These are summaries, not evidence of implemented controls. The acceptance
+baseline is maintained in the
+[lab safety requirements](../security/lab-safety-requirements.md) and
+[ADR-008](../adr/008-executable-lab-safety-baseline.md). Scenario declarations
+do not enforce themselves: the selected runtime and network boundary must deny
+undeclared access and pass negative and failure-path tests before executable
+labs are enabled.
 
 ## MVP architecture
 

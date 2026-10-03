@@ -138,21 +138,24 @@ and external systems.
   seed, allowed destinations, exposed ports, resource limits, timeouts,
   observation channels, and reset/destruction behavior.
 - Define default-deny access to host network/filesystem, real credentials,
-  unrelated scenarios, and undeclared capabilities.
+  unrelated scenarios, host-published listeners, and undeclared capabilities;
+  require verified identity/digest for executable artifacts.
 - Specify data minimization, secret redaction, trace retention, audit events,
   and cleanup after normal exit and failure.
 - Compare local-process, container, and sandbox-runtime options against the
   threat model; choose only after the constraints and required proof are clear.
 - Prototype an intentionally constrained scenario and test that prohibited
-  host/network access is denied, limits are enforced, and state is reset or
-  destroyed.
+  host/network/inbound access is denied, artifact provenance and resource
+  limits are enforced, and state is reset or destroyed.
 - Keep existing synthetic traces available while executable isolation is
   unproven; label them as simulations.
 
 **Exit gate:** the chosen runtime passes documented isolation and lifecycle
-tests, including failure/cleanup paths, and a security review accepts the
-residual risk. Until then, no arbitrary vulnerable code or live-target attack
-is enabled.
+tests, including failure/cleanup paths; unsupported platforms and residual
+risks are recorded; and the strict synthetic security/persona panel finds no
+unresolved critical blocker in that evidence. The panel is not proof of
+isolation. Until then, no arbitrary vulnerable code or live-target attack is
+enabled.
 
 ### Phase 3 — Complete one attack-to-verification learning loop
 
@@ -253,8 +256,10 @@ the protocol module.
   first-party module evidence, and a threat model; demand remains unvalidated.
 
 **Exit gate:** a new first-party module can be added without changing unrelated
-control-plane behavior; security review confirms declared capabilities and
-module lifecycle are enforced.
+control-plane behavior; automated tests verify declared capabilities and
+module lifecycle enforcement; and the strict synthetic panel finds no
+unresolved critical blocker in the evidence. The panel is not proof of
+security or real-world fit.
 
 ### Phase 6 — Reassess external integrations and hosting
 

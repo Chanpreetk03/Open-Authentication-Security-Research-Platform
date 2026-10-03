@@ -83,9 +83,18 @@ simulation/validation limits. See the current-state table in the
 
 - **Roadmap phase:** 2
 - **Depends on:** existing threat model and trust-boundary docs
-- **Work:** define default-deny host/network/filesystem access, target allowlists,
-  synthetic data, resource/time limits, per-scenario isolation, redaction,
-  trace retention, audit, reset, cleanup, and failure behavior.
+- **Work:** define default-deny host/network/filesystem access, inbound and
+  outbound target allowlists, synthetic data, resource/time limits,
+  per-scenario isolation, artifact provenance, redaction, trace retention,
+  audit, reset, cleanup, and failure behavior.
+- **Artifact:** [lab safety requirements](../security/lab-safety-requirements.md),
+  [primary-source guidance](../research/lab-safety-control-guidance.md), and
+  [ADR-008](../adr/008-executable-lab-safety-baseline.md).
+- **Status:** specification complete. The strict synthetic five-lens panel
+  passes 5/5 and the independent skeptic re-review passes; runtime controls
+  remain unproven and executable lab work remains gated on ROAD-006. See the
+  [final skeptic review](../../agent-graphs/runs/road-004-lab-safety/07-review.md)
+  and [persona review](../../agent-graphs/runs/road-004-lab-safety/08-persona-review.md).
 - **Done when:** requirements are testable and reviewed before choosing or
   implementing an executable vulnerable-code runtime.
 
@@ -95,7 +104,8 @@ simulation/validation limits. See the current-state table in the
 - **Depends on:** ROAD-004
 - **Work:** specify versioned scenario descriptors, declared capabilities,
   start/observe/execute/reset/destroy lifecycle, verification results, and
-  redaction rules.
+  redaction rules. Descriptors request capabilities; only the control plane and
+  runtime policy can authorize and enforce them.
 - **Done when:** a sample synthetic OAuth scenario can be represented without
   embedding protocol semantics in the shared control plane.
 
@@ -105,9 +115,12 @@ simulation/validation limits. See the current-state table in the
 - **Depends on:** ROAD-004 and ROAD-005
 - **Work:** compare local process, container, and sandbox options; build a
   constrained prototype; test denied host/network access, resource limits,
-  cleanup, reset, and cross-scenario isolation.
-- **Done when:** documented tests pass and security review accepts residual
-  risk. Until then, keep vulnerable scenarios synthetic and non-executable.
+  inbound/outbound network boundaries, artifact provenance, cleanup, reset,
+  and cross-scenario isolation.
+- **Done when:** documented tests pass, unsupported platforms and residual
+  risks are recorded, and the strict synthetic security/persona panel passes
+  against that evidence. This panel is not proof of isolation. Until then, keep
+  vulnerable scenarios synthetic and non-executable.
 
 ## P1 — Improve the current workbench and learning loop
 

@@ -36,6 +36,13 @@ make its boundaries and trust assumptions visible.
 - Secure reference implementations and vulnerable examples must have separate
   execution paths and clear labeling.
 
+The detailed executable-lab baseline, including enforcement owners and
+negative/failure-path acceptance tests, is in the
+[lab safety requirements](../security/lab-safety-requirements.md), accepted by
+[ADR-008](../adr/008-executable-lab-safety-baseline.md). Until ROAD-006 proves
+the selected runtime against that baseline, attack exercises remain synthetic
+and non-executable.
+
 ## Boundary analysis
 
 Each new module should document:

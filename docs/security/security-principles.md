@@ -12,3 +12,7 @@
 
 The first executable learning exercise applies defense in depth to OAuth
 callback correlation and authorization-code binding. See the [Academy lesson](../academy/defense-in-depth-oauth.md).
+
+Any future intentionally vulnerable executable exercise is additionally
+gated by the [lab safety requirements](lab-safety-requirements.md); current
+synthetic exercises do not demonstrate runtime isolation.

@@ -10,3 +10,4 @@ context, decision, alternatives, consequences, and status.
 - [ADR-005: Focus on authentication and cybersecurity learning](005-authentication-cybersecurity-learning-focus.md)
 - [ADR-006: OAuth flow explorer MVP](006-oauth-flow-explorer-mvp.md)
 - [ADR-007: Synthetic persona panel is the internal product review gate](007-synthetic-persona-review-policy.md)
+- [ADR-008: Fail-closed safety baseline for executable labs](008-executable-lab-safety-baseline.md)
