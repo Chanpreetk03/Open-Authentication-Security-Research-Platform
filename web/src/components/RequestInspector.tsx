@@ -30,7 +30,7 @@ export function RequestInspector() {
     <section className="request-workbench" aria-label="HTTP request and redirect inspector">
       <div className="request-boundary" role="note">
         <strong>Offline by design</strong>
-        <span>Input stays in this browser. No request is sent, no redirect is followed, query credentials and sensitive headers are masked, and message bodies are omitted.</span>
+        <span>Input stays in this browser. No request is sent, no redirect is followed, and message bodies are omitted. Redaction is best-effort: built-in name patterns and explicit rules mask selected values, but custom credential names may pass through. Sanitize input before pasting.</span>
       </div>
       <form onSubmit={inspect}>
         <label className="request-label" htmlFor="http-input">HTTP message or redirect URL</label>

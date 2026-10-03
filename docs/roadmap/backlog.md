@@ -67,8 +67,15 @@ simulation/validation limits. See the current-state table in the
 - **Roadmap phase:** 1
 - **Depends on:** ROAD-001; can draft using current behavior
 - **Work:** label each feature as local inspection, synthetic simulation,
-  cryptographic/standards validation, or live interoperability; name supported
-  versions and exclusions.
+  cryptographic verification, standards/profile validation, or live
+  interoperability; name supported versions and exclusions.
+- **Artifact:** [current capability inventory](../product/capability-inventory.md)
+  and the in-app Coverage view.
+- **Status:** complete. All 13 current surfaces are labeled; no existing
+  feature claims cryptographic verification, standards/profile validation, or
+  live interoperability. The strict synthetic five-lens panel passed 5/5;
+  [reassessment](../../agent-graphs/runs/road-003-capability-inventory/08-final-panel-review.md)
+  records its findings and remaining nonblocking verification improvements.
 - **Done when:** each current feature has a visible/documented scope and users
   are not led to mistake decoding or modeled traces for full validation.
 
@@ -108,6 +115,9 @@ simulation/validation limits. See the current-state table in the
 
 - **Roadmap phase:** 1
 - **Depends on:** ROAD-002
+- **Status:** complete. The navigation is grouped, OAuth state/PKCE controls
+  are editable, and the final synthetic persona panel passed 5/5. Real-user
+  usability remains unknown.
 - **Work:** resolve the highest-impact navigation, explanation, or interaction
   blocker raised by the panel; preserve local-only boundaries and
   protocol-specific meaning.

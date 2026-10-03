@@ -12,7 +12,7 @@ security decisions, and implementation plans. Start with [the product vision](do
 
 The first vertical slice is a simulated OAuth 2.0 authorization-code flow
 explorer. It follows the authorization request through access to a synthetic
-protected resource, with selectable state and PKCE failure scenarios. The Go
+protected resource, with editable state and PKCE protection controls. The Go
 API returns redacted events and per-exchange explanations to the React and
 TypeScript web client. Protocol Studio also includes a browser-local JWT
 inspector, offline HTTP request/redirect inspector, and local SAML assertion
@@ -28,6 +28,10 @@ synthetic traces, not real SAML
 messages. The
 Cybersecurity Principles Academy includes a guided
 defense-in-depth exercise based on the synthetic OAuth scenarios.
+
+Open **Coverage** in the app or read the
+[current capability inventory](docs/product/capability-inventory.md) for each
+tool's supported scope, capability label, and exclusions.
 
 Start the API from `backend/`:
 

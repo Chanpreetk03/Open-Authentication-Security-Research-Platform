@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 import { inspectHttpInput } from "./http-inspector";
 
 describe("inspectHttpInput", () => {
+  it("leaves an unknown custom credential header visible so the best-effort warning is accurate", () => {
+    const result = inspectHttpInput("GET / HTTP/1.1\nX-Internal-Access: demo-secret-value");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.inspection.headers).toContainEqual({ name: "X-Internal-Access", value: "demo-secret-value", redacted: false });
+  });
+
   it("parses a request target while masking sensitive query and headers", () => {
     const result = inspectHttpInput([
       "GET /callback?code=auth-code&state=browser-state&scope=openid HTTP/1.1",

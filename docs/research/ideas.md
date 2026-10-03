@@ -33,6 +33,6 @@ external user validation was found in the repository.
 “All authentication protocols and algorithms” is an aspiration, not an
 acceptance criterion. For each selected protocol, standard, and version, the
 product must say whether it supports local inspection, synthetic simulation,
-cryptographic/standards validation, or live interoperability. The roadmap
+cryptographic verification, standards/profile validation, or live interoperability. The roadmap
 tracks the sequence and gates; the coverage catalog should track actual
 implemented behavior.

@@ -12,3 +12,7 @@ The project may eventually support production-oriented identity capabilities,
 but its initial value is education, developer enablement, security research,
 and self-hosted experimentation—not enterprise application connectivity or
 access governance.
+
+The [current capability inventory](capability-inventory.md) separates what is
+implemented today from future protocol scope and states what each tool does not
+establish.

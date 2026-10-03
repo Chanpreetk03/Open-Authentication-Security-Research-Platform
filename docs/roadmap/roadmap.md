@@ -9,6 +9,8 @@ The actionable task list is in the [backlog](backlog.md); the disposition of
 each brainstormed idea is in the [idea register](../research/ideas.md). The
 supporting assessment is in
 [`agent-graphs/runs/idea-evaluation/`](../../agent-graphs/runs/idea-evaluation/).
+The current implementation's scope labels are in the
+[capability inventory](../product/capability-inventory.md).
 
 ## Product outcome
 

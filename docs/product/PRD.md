@@ -52,6 +52,10 @@ The core learning loop is:
 These areas may be reconsidered later only if they support the product thesis
 without turning the project into a general enterprise IAM competitor.
 
+The protocol breadth above describes product scope, not current implementation.
+See the [capability inventory](capability-inventory.md) for the exact tools,
+supported input/version scope, and validation/interoperability limits today.
+
 ## 4. Product experiences
 
 ### Authentication Lab

@@ -12,6 +12,8 @@ import { SamlRecipientLab } from "./components/SamlRecipientLab";
 import { SamlConditionsLab } from "./components/SamlConditionsLab";
 import { SamlSignatureBindingLab } from "./components/SamlSignatureBindingLab";
 import { SamlSubjectConfirmationLab } from "./components/SamlSubjectConfirmationLab";
+import { CapabilityCatalog, CapabilitySummary } from "./components/CapabilityCatalog";
+import { CAPABILITY_CATALOG, type CapabilityId } from "./capabilities";
 import { runOAuthConfiguration, type ProtocolExchange } from "./protocols/oauth";
 import "./styles.css";
 
@@ -20,16 +22,23 @@ function displayName(value: string) {
 }
 
 function App() {
-  const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation" | "saml-audience" | "saml-recipient" | "saml-conditions" | "saml-signature-binding" | "saml-subject-confirmation">("oauth");
+  type ActiveTool = CapabilityId | "coverage";
+  const [activeTool, setActiveTool] = useState<ActiveTool>("oauth");
+  const activeCapability = CAPABILITY_CATALOG.find((capability) => capability.id === activeTool);
   const toolButton = (tool: typeof activeTool, label: string) => <button type="button" aria-current={activeTool === tool ? "page" : undefined} onClick={() => setActiveTool(tool)}>{label}</button>;
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
       <div className="tool-group" role="group" aria-label="Flows"><span>Flows</span>{toolButton("oauth", "OAuth flow")}</div>
       <div className="tool-group" role="group" aria-label="Inspectors"><span>Inspect</span>{toolButton("jwt", "JWT inspector")}{toolButton("http", "Request inspector")}{toolButton("saml", "SAML viewer")}{toolButton("metadata", "SAML metadata")}</div>
-      <div className="tool-group" role="group" aria-label="Learning"><span>Learn</span>{toolButton("academy", "Academy")}</div>
+      <div className="tool-group" role="group" aria-label="Learning"><span>Learn</span>{toolButton("academy", "Academy")}{toolButton("coverage", "Coverage")}</div>
       <div className="tool-group" role="group" aria-label="SAML labs"><span>SAML labs</span>{toolButton("saml-replay", "Replay")}{toolButton("saml-correlation", "Request binding")}{toolButton("saml-audience", "Audience")}{toolButton("saml-recipient", "Recipient")}{toolButton("saml-conditions", "Time conditions")}{toolButton("saml-signature-binding", "Signature binding")}{toolButton("saml-subject-confirmation", "Confirmation candidates")}</div>
     </nav>
-    {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : activeTool === "saml-audience" ? <SamlAudienceLab /> : activeTool === "saml-recipient" ? <SamlRecipientLab /> : activeTool === "saml-conditions" ? <SamlConditionsLab /> : activeTool === "saml-signature-binding" ? <SamlSignatureBindingLab /> : <SamlSubjectConfirmationLab />}
+    {activeTool === "coverage"
+      ? <CapabilityCatalog onSelect={(id) => setActiveTool(id)} />
+      : <>
+        {activeCapability && <CapabilitySummary capability={activeCapability} onViewCatalog={() => setActiveTool("coverage")} />}
+        {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : activeTool === "saml-audience" ? <SamlAudienceLab /> : activeTool === "saml-recipient" ? <SamlRecipientLab /> : activeTool === "saml-conditions" ? <SamlConditionsLab /> : activeTool === "saml-signature-binding" ? <SamlSignatureBindingLab /> : <SamlSubjectConfirmationLab />}
+      </>}
   </main>;
 }
 
