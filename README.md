@@ -44,3 +44,9 @@ npm run dev
 
 See [ADR-006](docs/adr/006-oauth-flow-explorer-mvp.md) for the agreed scope of
 this first slice.
+
+## AI development workflows
+
+Reusable, file-based AI graphs for feature development, idea evaluation, and
+debugging are in [`agent-graphs/`](agent-graphs/README.md). Copy that directory
+and `.agents/skills/graph-workflows/` into another repository to reuse them.
