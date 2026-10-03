@@ -103,9 +103,14 @@ simulation/validation limits. See the current-state table in the
 - **Roadmap phase:** 2
 - **Depends on:** ROAD-004
 - **Work:** specify versioned scenario descriptors, declared capabilities,
-  start/observe/execute/reset/destroy lifecycle, verification results, and
+  start/observe/execute/reset/stop/destroy lifecycle, verification results, and
   redaction rules. Descriptors request capabilities; only the control plane and
   runtime policy can authorize and enforce them.
+- **Artifact:** [scenario manifest and lifecycle contract](../architecture/scenario-manifest-contract.md)
+  and the shared [domain glossary](../../CONTEXT.md).
+- **Status:** design contract complete; independent skeptic review and the
+  strict synthetic five-lens panel passed. The example remains a candidate
+  representation, not a finalized wire schema or implemented validator.
 - **Done when:** a sample synthetic OAuth scenario can be represented without
   embedding protocol semantics in the shared control plane.
 

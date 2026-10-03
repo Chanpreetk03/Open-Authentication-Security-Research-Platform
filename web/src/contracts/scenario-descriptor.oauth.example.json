@@ -1,0 +1,33 @@
+{
+  "apiVersion": "protocol-lab/v1alpha1",
+  "kind": "ScenarioDescriptor",
+  "metadata": {
+    "id": "oauth.authorization-code.missing-pkce",
+    "version": "1.0.0",
+    "title": "Authorization code without PKCE"
+  },
+  "module": {
+    "id": "oauth-oidc",
+    "version": "0.1.0"
+  },
+  "scenarioRef": {
+    "id": "missing-pkce"
+  },
+  "execution": {
+    "mode": "synthetic",
+    "dataProfile": "synthetic.oauth-demo.v1",
+    "exerciseStepRefs": ["simulate-authorization-code-flow"],
+    "verificationCheckRefs": ["pkce-verifier-required"]
+  },
+  "capabilityRequests": {
+    "targets": [],
+    "listeners": [],
+    "operations": [],
+    "scratchProfile": "none",
+    "resourceProfile": "protocol-simulation-small"
+  },
+  "observability": {
+    "evidenceSchemaRef": "oauth-oidc.authorization-flow.v1",
+    "redactionProfileRef": "oauth-oidc.trace-redaction.v1"
+  }
+}

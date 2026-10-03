@@ -73,6 +73,15 @@ wire observation, secure and vulnerable variants, attack exercises, and
 verification. The Lab control plane uses a protocol-neutral interface so new
 protocols do not require redesigning scenario lifecycle or trace storage.
 
+The candidate descriptor, request/grant distinction, run states, and evidence
+contract are documented in the
+[scenario manifest contract](scenario-manifest-contract.md). Module-owned
+scenario IDs carry protocol semantics; the control plane validates references
+and applies safety policy without interpreting those semantics.
+Stopping a run revokes its grant and removes run resources, traces, evidence,
+and run-scoped secrets under ROAD-004; destroy also removes remaining run
+metadata subject to the audit boundary.
+
 The Lab does not own general identity policy. It consumes the Reference
 Identity Engine through a narrow scenario adapter and may replace that adapter
 with a deliberately vulnerable implementation inside an isolated scenario.

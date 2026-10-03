@@ -18,3 +18,7 @@ Authorization can be expressed as:
 The initial RBAC relationship is `User -> Role -> Permission`. A later
 policy-based model combines subject attributes, resource attributes, action,
 and environment to produce a decision.
+
+The lab-specific terms—scenario descriptor, scenario definition, capability
+request/grant, scenario run, exercise step, evidence, trace, and verification
+result—are defined in the root [domain context glossary](../../CONTEXT.md).

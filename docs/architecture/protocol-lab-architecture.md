@@ -42,11 +42,12 @@ module interface:
 ProtocolModule
 - Describe() -> ProtocolDescriptor
 - CreateScenario(variant, seed) -> ScenarioDefinition
-- StartScenario(definition) -> ScenarioHandle
+- StartScenario(definition, grantedRunContext) -> ModuleScenarioHandle
 - Execute(handle, exerciseStep) -> Evidence
 - Observe(handle) -> ProtocolExchange[]
 - Verify(handle, verification) -> VerificationResult
 - Reset(handle)
+- Stop(handle)
 - Destroy(handle)
 ```
 
@@ -54,6 +55,22 @@ ProtocolModule
 many internal packages for parsers, state machines, cryptography, servers,
 clients, and tests, but those details should not leak into the Lab control
 plane.
+
+These are semantic module operations within an already authorized run. The
+control plane validates the descriptor and computes the run-bound grant before
+startup. The runtime adapter alone creates the isolated process/network/storage
+resources and passes an opaque `grantedRunContext` to module initialization.
+`StartScenario` initializes protocol state inside that context and returns a
+module-level handle; it cannot create resources, select an artifact, or widen
+the grant. That handle cannot address runtime resources. The adapter owns
+resource teardown on stop/destroy, while the module owns protocol state and
+meaning. These conceptual names do not prescribe API transport.
+
+The scenario descriptor, capability request/grant distinction, lifecycle
+states, and evidence/result boundary are specified in the candidate
+[scenario manifest contract](scenario-manifest-contract.md). The descriptor
+references module-owned scenario, step, and check IDs; it does not embed their
+protocol semantics or grant its own capabilities.
 
 Each `ProtocolDescriptor` declares:
 

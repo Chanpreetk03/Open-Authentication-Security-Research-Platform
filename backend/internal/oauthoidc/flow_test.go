@@ -1,13 +1,43 @@
 package oauthoidc
 
 import (
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
 
 var testTime = time.Date(2026, 9, 20, 0, 0, 0, 0, time.UTC)
+
+func TestScenarioDescriptorReferencesExistingOAuthScenario(t *testing.T) {
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("resolve test file path")
+	}
+	fixturePath := filepath.Join(filepath.Dir(currentFile), "..", "..", "..", "web", "src", "contracts", "scenario-descriptor.oauth.example.json")
+	fixture, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatalf("read scenario descriptor fixture: %v", err)
+	}
+	var descriptor struct {
+		ScenarioRef struct {
+			ID string `json:"id"`
+		} `json:"scenarioRef"`
+	}
+	if err := json.Unmarshal(fixture, &descriptor); err != nil {
+		t.Fatalf("decode scenario descriptor fixture: %v", err)
+	}
+	for _, scenario := range Scenarios() {
+		if scenario.ID == descriptor.ScenarioRef.ID {
+			return
+		}
+	}
+	t.Fatalf("scenario descriptor ID %q does not resolve in OAuth module", descriptor.ScenarioRef.ID)
+}
 
 func TestAuthorizationCodeFlowIsRedactedAndOrdered(t *testing.T) {
 	flow, err := NewAuthorizationCodeFlow(testTime)
