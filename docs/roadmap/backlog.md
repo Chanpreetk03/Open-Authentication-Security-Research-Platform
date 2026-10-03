@@ -42,6 +42,9 @@ simulation/validation limits. See the current-state table in the
   failure, identifying mitigation evidence, coaching needed, and desired next
   capability. Set decision thresholds before sessions rather than selecting
   them after seeing results.
+- **Artifact:** draft [user-task validation guide](../research/user-task-validation.md)
+  with session prompts, scorecard, safety rules, and proposed thresholds.
+- **Status:** drafted; product-owner review and threshold signoff are pending.
 - **Done when:** a short session guide and decision rubric are reviewed and
   record observed behavior separately from interpretation.
 
