@@ -11,8 +11,8 @@ product-owner decisions are in the roadmap.
   later activity safe.
 - **P1 — Core loop:** needed to make the selected workbench and learning loop
   useful and verifiable.
-- **P2 — Conditional expansion:** start only when user evidence selects it and
-  prerequisite safety/design gates pass.
+- **P2 — Conditional expansion:** start only after an explicit product-owner
+  selection informed by internal critique and prerequisite safety/design gates.
 - **P3 — Reassess later:** preserve as a future option; no current delivery
   commitment.
 - **Deferred:** outside the current product direction unless a separate
@@ -20,8 +20,8 @@ product-owner decisions are in the roadmap.
 
 ## Current baseline — already implemented, maintain rather than duplicate
 
-- OAuth 2.0 authorization-code simulation with secure, missing-state, and
-  missing-PKCE paths and redacted event explanations.
+- OAuth 2.0 authorization-code simulation with editable state/PKCE controls,
+  all four protection combinations, and redacted event explanations.
 - Browser-local JWT, HTTP request/redirect, SAML assertion, and SAML metadata
   inspection surfaces.
 - Synthetic SAML exercises for replay, request correlation, audience,
@@ -34,30 +34,33 @@ simulation/validation limits. See the current-state table in the
 
 ## P0 — Validate direction and establish safety gates
 
-### ROAD-001 — Define the user-task validation rubric
+### ROAD-001 — Define the synthetic review rubric
 
 - **Roadmap phase:** 0
 - **Depends on:** none
-- **Work:** define tasks and capture fields for explaining a trace, diagnosing a
-  failure, identifying mitigation evidence, coaching needed, and desired next
-  capability. Set decision thresholds before sessions rather than selecting
-  them after seeing results.
-- **Artifact:** draft [user-task validation guide](../research/user-task-validation.md)
-  with session prompts, scorecard, safety rules, and proposed thresholds.
-- **Status:** drafted; product-owner review and threshold signoff are pending.
-- **Done when:** a short session guide and decision rubric are reviewed and
-  record observed behavior separately from interpretation.
+- **Work:** define the five persona lenses, evidence rules, critical-blocker
+  criteria, and strict unanimous internal design-gate threshold.
+- **Artifact:** [internal review protocol](../research/internal-product-review.md)
+  and [ADR-007](../adr/007-synthetic-persona-review-policy.md).
+- **Status:** complete. Human reviewers and user sessions are not part of this
+  product process; real-world usability and demand remain unknown.
+- **Done when:** each product-facing change has a recorded panel outcome and
+  source-backed evidence, with inferences separated from observed facts.
 
-### ROAD-002 — Run workbench task sessions
+### ROAD-002 — Run the synthetic persona panel
 
 - **Roadmap phase:** 0
 - **Depends on:** ROAD-001
-- **Work:** test the current OAuth/JWT/HTTP/SAML surfaces with developers and
-  security learners. Do not use production credentials, third-party targets,
-  or live traffic.
-- **Done when:** findings identify the strongest initial persona/task, whether
-  synthetic evidence is understood/trusted, and which next capability users
-  request. The product owner makes an explicit continue/revise decision.
+- **Work:** invoke the reusable panel for product-facing changes and roadmap
+  decisions. Require all five lenses to find no critical blocker for an
+  internal design-gate pass. Do not use credentials, third-party targets, or
+  live traffic.
+- **Status:** active internal review process; first panel run is recorded in
+  `agent-graphs/runs/roadmap-road-002/`. It is not user research and yields no
+  claims about actual usability or demand.
+- **Done when:** findings identify evidence-backed product blockers, inferred
+  concerns, coverage gaps, and the next internal change. Mark user demand and
+  real-world usability unknown absent direct evidence.
 
 ### ROAD-003 — Publish capability labels and coverage inventory
 
@@ -101,15 +104,16 @@ simulation/validation limits. See the current-state table in the
 
 ## P1 — Improve the current workbench and learning loop
 
-### ROAD-101 — Refine core workflow from validation findings
+### ROAD-101 — Refine core workflow from internal review
 
 - **Roadmap phase:** 1
 - **Depends on:** ROAD-002
 - **Work:** resolve the highest-impact navigation, explanation, or interaction
-  problem observed in the chosen user task; preserve local-only boundaries and
+  blocker raised by the panel; preserve local-only boundaries and
   protocol-specific meaning.
-- **Done when:** the selected task meets the preregistered usability rubric and
-  protocol data/limitations are represented accurately.
+- **Done when:** the panel's strict internal gate passes and protocol meaning
+  and simulation limits are represented accurately. This is not a usability
+  validation claim.
 
 ### ROAD-102 — Maintain protocol adapter contracts
 
@@ -134,7 +138,7 @@ simulation/validation limits. See the current-state table in the
 ### ROAD-104 — Add one validated security-principle lesson
 
 - **Roadmap phase:** 3
-- **Depends on:** ROAD-103; user evidence chooses topic
+- **Depends on:** ROAD-103; internal panel critique and product-owner selection
 - **Work:** implement one lesson tied to an existing protocol scenario, such as
   replay protection, trust validation, secure defaults, or least privilege.
 - **Done when:** learner can reproduce the modeled failure, explain its trust
@@ -167,13 +171,13 @@ simulation/validation limits. See the current-state table in the
 
 ## P2 — Protocol and cryptographic expansion (choose one bounded slice)
 
-### ROAD-201 — Select the next protocol slice from user evidence
+### ROAD-201 — Select the next protocol slice by owner decision
 
 - **Roadmap phase:** 4
 - **Depends on:** ROAD-002, ROAD-003
 - **Work:** compare deeper OAuth/OIDC, SAML validation, WebAuthn/passkeys, LDAP,
-  Kerberos, and PKI/key lifecycle against user requests, implementation risk,
-  and safety dependencies.
+  Kerberos, and PKI/key lifecycle against product strategy, repository/standards
+  evidence, internal panel critique, implementation risk, and safety dependencies.
 - **Done when:** product owner selects one protocol/version/use case with clear
   exclusions and acceptance evidence.
 
@@ -244,7 +248,7 @@ simulation/validation limits. See the current-state table in the
 - **Done when:** secure checks and failure cases are verified without real
   account enrollment or reusable real secrets.
 
-## P3 — Reassess after core use is validated
+## P3 — Reassess after core implementation is internally reviewed
 
 ### ROAD-301 — Prove the internal module seam with a second first-party module
 
@@ -258,7 +262,7 @@ simulation/validation limits. See the current-state table in the
 ### ROAD-302 — Evaluate a third-party plugin model
 
 - **Roadmap phase:** 5
-- **Depends on:** ROAD-301 plus validated user demand and plugin threat model
+- **Depends on:** ROAD-301 plus explicit owner decision and plugin threat model
 - **Work:** assess trust, signing, compatibility/versioning, capabilities,
   review, distribution, and runtime isolation. Do not allow plugins to bypass
   sandbox policy.
@@ -268,8 +272,9 @@ simulation/validation limits. See the current-state table in the
 ### ROAD-303 — Reassess controlled real-provider or live integration testing
 
 - **Roadmap phase:** 6
-- **Depends on:** user evidence showing synthetic-only workflows are
-  insufficient; target authorization and credential/data threat model
+- **Depends on:** explicit owner decision that a technical/product need cannot
+  be met with synthetic workflows; target authorization and credential/data
+  threat model. Demand remains unvalidated.
 - **Work:** evaluate explicit test-provider setup, SSRF protections, consent and
   allowlists, secret redaction, audit, and retention.
 - **Done when:** separate proposal establishes bounded targets, safeguards, and
@@ -278,8 +283,8 @@ simulation/validation limits. See the current-state table in the
 ### ROAD-304 — Reassess hosted execution and multi-user sharing
 
 - **Roadmap phase:** 6
-- **Depends on:** validated need for hosted/shared workflows and operations,
-  tenancy, abuse, privacy, and incident-response plan
+- **Depends on:** explicit owner decision to investigate hosted/shared workflows
+  and operations, tenancy, abuse, privacy, and incident-response plan
 - **Work:** assess isolation per tenant/scenario, operations, retention, quotas,
   secrets, and cost.
 - **Done when:** product owner accepts a separate proposal and risk review.

@@ -42,6 +42,11 @@ export type SecurityFinding = {
   mitigation: string;
 };
 
+export type OAuthProtectionConfiguration = {
+  stateEnabled: boolean;
+  pkceEnabled: boolean;
+};
+
 export type ProtocolMessage = {
   sequence: number;
   participant: string;
@@ -81,6 +86,24 @@ export async function runOAuthScenario(scenarioId: string): Promise<ProtocolExch
   if (!response.ok) throw new Error("The selected scenario could not be run.");
 
   const flow = (await response.json()) as OAuthFlowDTO;
+  return toProtocolExchange(flow);
+}
+
+export async function runOAuthConfiguration(configuration: OAuthProtectionConfiguration): Promise<ProtocolExchange> {
+  const response = await fetch("/api/flows/oauth/authorization-code", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      state_enabled: configuration.stateEnabled,
+      pkce_enabled: configuration.pkceEnabled,
+    }),
+  });
+  if (!response.ok) throw new Error("The configured flow could not be run.");
+  const flow = (await response.json()) as OAuthFlowDTO;
+  return toProtocolExchange(flow);
+}
+
+function toProtocolExchange(flow: OAuthFlowDTO): ProtocolExchange {
   const messages = flow.events.map((event) => ({
     sequence: event.sequence,
     participant: event.actor,

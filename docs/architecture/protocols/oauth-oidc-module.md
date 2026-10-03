@@ -196,6 +196,7 @@ the weakness they demonstrate rather than by a generic `insecure` switch:
 secure
 missing-state
 missing-pkce
+missing-state-and-pkce
 weak-redirect-validation
 weak-id-token-validation
 refresh-token-reuse

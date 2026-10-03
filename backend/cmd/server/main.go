@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -33,6 +34,32 @@ func newHandler() http.Handler {
 				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 				return
 			}
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, flow)
+	})
+	mux.HandleFunc("POST /api/flows/oauth/authorization-code", func(w http.ResponseWriter, r *http.Request) {
+		var request struct {
+			StateEnabled *bool `json:"state_enabled"`
+			PKCEEnabled  *bool `json:"pkce_enabled"`
+		}
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1024))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&request); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "request must contain state_enabled and pkce_enabled booleans"})
+			return
+		}
+		if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "request must contain a single JSON object"})
+			return
+		}
+		if request.StateEnabled == nil || request.PKCEEnabled == nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "request must contain state_enabled and pkce_enabled booleans"})
+			return
+		}
+		flow, err := oauthoidc.NewAuthorizationCodeFlowForProtections(*request.StateEnabled, *request.PKCEEnabled, time.Now().UTC())
+		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
@@ -181,7 +208,7 @@ func newHandler() http.Handler {
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)

@@ -6,7 +6,8 @@
 Request -> Planner -> [Codebase map || Acceptance/risk map]
                     -> Scope gate -> Implementation -> Verification
                                                    -> Skeptic review
-                                                   -> Human acceptance
+                                                   -> Synthetic persona panel gate
+                                                   -> Owner handoff
 ```
 
 ## Nodes
@@ -50,13 +51,21 @@ Request -> Planner -> [Codebase map || Acceptance/risk map]
 ### D7 — Skeptic review
 
 - **Input:** diff and artifacts 01–06.
-- **Output:** `07-review.md`: scope drift, missed reuse, regressions, security/privacy concerns, and unsupported claims. Findings point to exact files/lines.
+- **Output:** `07-review.md`: scope drift, missed reuse, regressions, security/privacy concerns, and unsupported claims. Findings point to exact files/lines. For user-facing product changes, invoke the reusable [synthetic persona panel](../agents/synthetic-persona-panel.md) as an independent review and include its report or a link to it.
 - **Done when:** findings are fixed or explicitly surfaced, and impacted verification is rerun.
 
-### D8 — Human acceptance
+The synthetic persona panel is the project's default internal product-review
+process. Its strict unanimity gate can identify blockers. It cannot establish
+real-world usability, user demand, or empirical validation; record those as
+unknown unless actual evidence exists.
+
+### D8 — Owner handoff
 
 - **Input:** diff, verification, skeptic findings, and remaining tradeoffs.
-- **Output:** concise final handoff for the user; human decides whether to accept the change.
-- **Done when:** result, checks, limitations, and any follow-up are clear.
+- **Output:** concise final handoff for the owner, including panel outcome and
+  any unresolved decision that genuinely requires product-owner input.
+- **Done when:** result, checks, limitations, and any follow-up are clear. The
+  synthetic panel is the normal internal review gate; it is not evidence of
+  real user validation. Do not wait for human reviewers or invent user evidence.
 
 **Parallelism:** D2 and D3 can run concurrently. Implementation follows the scope gate. Verification and skeptic review can overlap after implementation, but fixes must be reverified. **Stop condition:** D8 has enough evidence for the user to accept or request changes.

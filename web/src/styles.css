@@ -19,10 +19,18 @@ h1 { font-size: clamp(2.8rem, 7vw, 5.9rem); line-height: .95; letter-spacing: -.
 .timeline { padding: 24px 22px; }.event { width: 100%; display: grid; grid-template-columns: 44px 1fr; gap: 12px; text-align: left; color: inherit; background: transparent; border: 0; border-bottom: 1px solid #2b3a34; padding: 17px 0; cursor: pointer; }.event:first-child { padding-top: 0; }.event:last-child { border-bottom: 0; }.event:hover .event-body, .event:focus-visible .event-body, .event.active .event-body { background: #22302a; border-color: #b7d85e; }.event:focus-visible { outline: none; }.marker { color: #b7d85e; font: 500 .85rem "Cascadia Code", Consolas, monospace; padding-top: 4px; }.event-body { display: block; border-left: 2px solid #50665c; border-radius: 0 8px 8px 0; padding: 12px 14px; transition: background .2s, border-color .2s; }.event-head { display: flex; justify-content: space-between; gap: 16px; }.event-head > span { display: grid; gap: 4px; }.event-head strong { text-transform: capitalize; font-size: 1.05rem; }.event-head code { color: #88b6a2; white-space: nowrap; }.actor { color: #91a59c; }.event-outcome { display: block; color: #afc0b8; margin-top: 9px; }.properties { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }.properties span { color: #b7d85e; border: 1px solid #52683b; border-radius: 99px; padding: 4px 7px; }
 .explanation { padding: 30px 25px; border-left: 1px solid #32423c; background: linear-gradient(150deg, #1b2823, #15201d); }.explanation h2 { font-size: 1.55rem; line-height: 1.1; margin: 12px 0 28px; }.explanation section { border-top: 1px solid #3b4c45; padding: 17px 0; }.explanation h3 { color: #b7d85e; font: 500 .76rem "Cascadia Code", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; margin: 0; }.explanation p { color: #b8c8c0; line-height: 1.6; margin: 9px 0 0; }.parameters { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }.parameters code { color: #dae8df; background: #25342f; padding: 8px; border-radius: 4px; text-transform: none; letter-spacing: 0; }
 .studio-shell { padding-top: 28px; }
-.tool-switcher { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #32423c; margin-bottom: 55px; }
-.tool-switcher button { color: #a8b9b2; background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 0 13px 12px; cursor: pointer; }
-.tool-switcher button[aria-current="page"] { color: #d9e5df; border-color: #b7d85e; }
+.tool-switcher { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 18px 28px; border-bottom: 1px solid #32423c; margin-bottom: 55px; padding-bottom: 14px; }
+.tool-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.tool-group > span { flex-basis: 100%; padding: 0 10px 5px; color: #7f968b; font: 500 .68rem "Cascadia Code", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.tool-switcher button { color: #a8b9b2; background: transparent; border: 0; border-radius: 5px; padding: 7px 10px; cursor: pointer; }
+.tool-switcher button[aria-current="page"] { color: #101716; background: #b7d85e; }
 .tool-switcher button:focus-visible, .example-button:focus-visible { outline: 2px solid #b7d85e; outline-offset: 3px; }
+.protection-controls { display: grid; gap: 14px; margin: 30px 0 2px; padding: 18px; color: #d9e5df; border: 1px solid #40534a; border-radius: 12px; background: rgba(23, 33, 30, .72); }
+.protection-controls legend { padding: 0 8px; color: #b7d85e; font: 500 .75rem "Cascadia Code", Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.protection-controls label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.protection-controls input { width: 18px; height: 18px; accent-color: #b7d85e; }
+.protection-controls input:focus-visible { outline: 2px solid #b7d85e; outline-offset: 3px; }
+.protection-controls small { color: #a8b9b2; line-height: 1.5; }
 .jwt-hero h1 { max-width: 920px; }
 .jwt-workbench { max-width: 1000px; margin-top: 38px; padding: 25px; background: rgba(23, 33, 30, .86); border: 1px solid #32423c; border-radius: 16px; }
 .jwt-boundary { display: grid; gap: 6px; padding: 14px 16px; margin-bottom: 24px; color: #d6dfd9; background: #25352b; border-left: 3px solid #b7d85e; }

@@ -26,7 +26,8 @@ The explorer exposes:
 - `GET /api/flows/saml/signature-binding?scenario=signature-binding-enforced|signature-binding-ignored`
 - `GET /api/flows/saml/subject-confirmation/scenarios`
 - `GET /api/flows/saml/subject-confirmation?scenario=subject-confirmation-enforced|subject-confirmation-mixed`
-- `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce`
+- `GET /api/flows/oauth/authorization-code?scenario=secure|missing-state|missing-pkce|missing-state-and-pkce`
+- `POST /api/flows/oauth/authorization-code` with `{"state_enabled":boolean,"pkce_enabled":boolean}` to generate a local synthetic trace for the selected protections.
 
 The secure reference flow runs from authorization request through a synthetic
 protected resource request. Failure scenarios are deterministic simulations;

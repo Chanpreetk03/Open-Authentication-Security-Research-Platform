@@ -1,6 +1,6 @@
 # Agent graphs
 
-Portable, file-based AI workflows for development, idea evaluation, and debugging. These are graph engineering workflows: named jobs pass explicit artifacts along dependency edges, independent jobs can run in parallel, a skeptic checks the result, and a person owns consequential decisions.
+Portable, file-based AI workflows for development, idea evaluation, and debugging. These are graph engineering workflows: named jobs pass explicit artifacts along dependency edges, independent jobs can run in parallel, and a synthetic persona panel checks product-facing work using a strict unanimity threshold. The product owner remains responsible for consequential scope decisions.
 
 The workflows are deliberately usable by hand in Codex, Claude Code, or another coding assistant. They do not require LangGraph, an API key, or a runtime. Start by running them manually; only automate a workflow after it has produced useful results repeatedly.
 
@@ -11,6 +11,13 @@ Ask your coding assistant:
 > Use the `development` graph in `agent-graphs/workflows/development.md` for this request.
 
 Use `idea-review` to investigate a product or technical idea, and `debugging` to investigate a failure. The repo-local [graph-workflows skill](../.agents/skills/graph-workflows/SKILL.md) contains execution and handoff instructions.
+
+For product-facing changes, the `development` graph's skeptic node invokes the
+[synthetic persona panel](agents/synthetic-persona-panel.md). It reviews work
+from developer, learner, security engineer, and architect/educator perspectives
+and uses a strict unanimity rule. This is internal critique only; it never
+counts as human user validation. See the
+[persona panel workflow](workflows/persona-panel-review.md).
 
 ## Copy to another repo
 
@@ -27,5 +34,5 @@ For a run worth keeping, create `agent-graphs/runs/<short-name>/` and save each 
 - Keep evidence separate from assumptions and recommendations.
 - Let a skeptic challenge evidence and look for missing cases.
 - Stop when the workflow's completion condition is met.
-- Pause for human decisions at the gates; the assistant does not approve product scope, risky actions, or external testing on the user's behalf.
+- Pause only for consequential product-owner decisions or external actions that require authorization. Routine product-facing changes use the synthetic persona panel; its output is internal critique, never user validation.
 - Do not turn a graph into a multi-agent framework unless repeated manual use shows a real need.

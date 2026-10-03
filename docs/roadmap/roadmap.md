@@ -2,8 +2,8 @@
 
 This roadmap turns the evaluated idea portfolio into a dependency-ordered plan
 for an authentication protocol workbench and safe attack sandbox. It is
-outcome-based rather than date-based because delivery capacity and user demand
-have not yet been validated.
+outcome-based rather than date-based. Product changes receive internal review
+from the synthetic persona panel; actual user demand remains unknown.
 
 The actionable task list is in the [backlog](backlog.md); the disposition of
 each brainstormed idea is in the [idea register](../research/ideas.md). The
@@ -55,7 +55,7 @@ readiness or standards conformance:
 
 | Capability | Current state |
 |---|---|
-| OAuth 2.0 authorization-code flow | Deterministic Go simulation with secure, missing-state, and missing-PKCE scenarios and redacted explanatory events. |
+| OAuth 2.0 authorization-code flow | Deterministic Go simulation with editable state/PKCE protections, four modeled combinations, and redacted explanatory events. |
 | Protocol inspection | Browser-local JWT, HTTP request/redirect, SAML assertion, and SAML metadata inspectors. The HTTP inspector does not send or replay requests. |
 | SAML security exercises | Synthetic replay, request-correlation, audience, recipient, time-condition, signature-binding, and subject-confirmation scenarios with backend/frontend tests. These are targeted models, not a complete SAML parser or validator. |
 | Learning content | One Academy defense-in-depth lesson links OAuth scenarios to secure-flow verification. |
@@ -71,32 +71,32 @@ Source map: `backend/internal/oauthoidc/`, `backend/internal/saml/`,
 Phases are ordered by dependency. A phase can be refined after its gate; future
 protocols are not pre-approved merely because they appear in the curriculum.
 
-### Phase 0 — Validate the workbench problem
+### Phase 0 — Establish internal product direction
 
-**Outcome:** establish which users and tasks the current product should optimize
-for before expanding protocol breadth.
+**Outcome:** establish an explicit, evidence-labeled internal direction for
+which users and tasks the current product should optimize for before expanding
+protocol breadth. This phase does not claim real-user validation.
 
 **Work:**
 
-- Run moderated task sessions with developers and security learners using the
-  current OAuth/JWT/HTTP/SAML experience.
-- Ask participants to explain a trace, diagnose a failure, and identify the
-  evidence that would verify a mitigation.
-- Before sessions, define a short rubric for task completion, coaching needed,
-  correct interpretation of simulation limits, and the participant’s requested
-  next capability.
-- Record which persona, tool, and next protocol or integration need recurs;
-  separate observed requests from interpretation.
+- Use the five-lens synthetic persona panel for internal critique of product
+  changes and roadmap options. Require all five lenses to find no critical
+  blocker before an internal design gate passes.
+- Record source-backed observations separately from inferred persona concerns
+  and unknown real-user behavior.
+- Keep actual usability, user demand, and market fit marked unknown unless
+  direct evidence is later collected.
 
-**Exit gate:** the product owner reviews the evidence and selects the primary
-initial user/task, confirms or revises the combined workbench-and-lab thesis,
-and chooses one next slice. If participants consistently prefer offline
-inspection or demand live integration, revise scope before implementation.
+**Exit gate:** the product owner reviews repository evidence and the synthetic
+panel's unanimous internal gate, then selects the primary intended user/task,
+confirms or revises the combined workbench-and-lab thesis, and chooses one next
+slice. This is an internal product decision, not validated demand; real-user
+preference and usability remain unknown.
 
 ### Phase 1 — Make the existing workbench clear and dependable
 
-**Prerequisite:** Phase 0 confirms at least one current workflow is useful, or
-provides specific revisions to test.
+**Prerequisite:** Phase 0 records an explicit product-owner direction and the
+synthetic panel finds no unresolved critical blocker for the selected slice.
 
 **Outcome:** users can recognize what each tool does and does not prove, and
 complete the chosen inspect/understand task without confusing a synthetic trace
@@ -105,19 +105,21 @@ with a real protocol exchange.
 **Work:**
 
 - Improve navigation and shared presentation across the current OAuth, JWT,
-  HTTP, and SAML surfaces based on task evidence.
+  HTTP, and SAML surfaces based on repository evidence and panel findings.
 - Make coverage status visible: local parsing/inspection, synthetic simulation,
   standards validation, or live interoperability.
 - Keep redaction behavior, input limits, parser errors, and local-only behavior
   explicit for pasted artifacts.
 - Maintain contract and behavior tests for backend events and frontend
   adapters; preserve protocol-specific details in their modules.
-- Add only the OAuth/OIDC or algorithm inspection gaps identified by user
-  evidence, with bounded standard/version coverage.
+- Add only the OAuth/OIDC or algorithm inspection gaps selected by the owner
+  after repository and internal-review evidence, with bounded standard/version
+  coverage. This is not a claim about user demand.
 
-**Exit gate:** selected tasks pass the agreed usability rubric; traces and
-inspectors accurately label their evidence and limitations; supported
-operations and versions are documented.
+**Exit gate:** the synthetic panel's five lenses find no credible critical
+blocker; traces and inspectors accurately label their evidence and limitations;
+supported operations and versions are documented. This is not a usability
+validation claim.
 
 ### Phase 2 — Define and prove the lab safety boundary
 
@@ -152,7 +154,7 @@ is enabled.
 
 ### Phase 3 — Complete one attack-to-verification learning loop
 
-**Prerequisite:** Phase 1 user/task evidence; Phase 2 safety design for any
+**Prerequisite:** Phase 1 internal panel review; Phase 2 safety design for any
 executable target. Synthetic scenarios may continue under their documented
 local-only boundary.
 
@@ -185,13 +187,15 @@ rejects undeclared inputs/targets and supports deterministic reset.
 
 ### Phase 4 — Deepen core protocol and cryptographic coverage
 
-**Prerequisite:** user evidence names the next protocol or cryptographic task;
-the Phase 2 safety gate applies to executable labs.
+**Prerequisite:** the product owner selects a next protocol or cryptographic
+slice based on product strategy, repository evidence, and internal panel
+critique; all Phase 2 safety gates still apply to executable labs. User demand
+remains unknown.
 
 **Outcome:** versioned, reviewable protocol modules that support the product
 loop without pretending every format or algorithm has been implemented.
 
-**Candidate curriculum (not a fixed delivery schedule; select one slice at a time from user evidence):**
+**Candidate curriculum (not a fixed delivery schedule; select one slice at a time through an explicit owner decision informed by internal critique):**
 
 1. **OAuth 2.0 / OpenID Connect / JWT:** complete the chosen authorization
    code, PKCE/state, discovery/issuer, ID-token claims/signature, and token
@@ -210,8 +214,9 @@ loop without pretending every format or algorithm has been implemented.
    bind/search/filter/TLS concepts, and injection/least-privilege lessons.
    External directory targets require explicit local test-environment setup.
 5. **Kerberos:** begin with AS/TGS/service-ticket actors and synthetic traces;
-   only add an executable realm lab after directory/runtime requirements and
-   user demand justify its higher operational complexity.
+   only add an executable realm lab after directory/runtime requirements and an
+   explicit owner decision supported by architectural evidence justify its
+   higher operational complexity. Demand remains unvalidated.
 6. **PKI and key lifecycle:** teach certificate chains, trust anchors, signing
    and verification, algorithm choice, rotation, expiry, and revocation using
    synthetic artifacts. Do not turn the product into a production secret or
@@ -223,7 +228,8 @@ appropriate, and verification sources before implementation.
 
 **Exit gate:** a module adds a complete bounded learning/debugging slice,
 maintains protocol-specific semantics, has tests/verification and safety
-boundaries, and users can distinguish simulation from validation/interoperability.
+boundaries, and the panel finds no critical blocker in how it represents
+simulation versus validation/interoperability. This is not user evidence.
 
 ### Phase 5 — Prove modular extensibility and local adoption
 
@@ -240,9 +246,9 @@ the protocol module.
 - Document compatibility, versioning, redaction, capability declarations, and
   verification requirements.
 - Improve local/self-hosted setup and reproducible synthetic scenarios based on
-  user evidence.
-- Evaluate an external plugin model only if first-party module friction and
-  user demand justify it; a plugin must not bypass sandbox policy.
+  repository evidence and internal critique.
+- Evaluate an external plugin model only after an explicit owner decision,
+  first-party module evidence, and a threat model; demand remains unvalidated.
 
 **Exit gate:** a new first-party module can be added without changing unrelated
 control-plane behavior; security review confirms declared capabilities and
@@ -250,9 +256,10 @@ module lifecycle are enforced.
 
 ### Phase 6 — Reassess external integrations and hosting
 
-**Prerequisite:** evidence from Phases 0–5 demonstrates a user need that local
-synthetic work cannot meet, and a threat/operations review defines the added
-responsibilities.
+**Prerequisite:** the product owner explicitly selects an external-integration
+or hosting investigation because local synthetic work appears insufficient,
+and a threat/operations review defines the added responsibilities. User demand
+remains unknown.
 
 **Outcome:** a deliberate decision to keep local-first, add controlled
 integration testing, or evaluate hosted execution.
@@ -263,8 +270,9 @@ multi-user sharing, hosted isolation, secrets, abuse controls, audit and
 retention. Each requires its own scope and approval; none is implied by this
 roadmap.
 
-**Exit gate:** product owner accepts a separate proposal with validated user
-need, explicit threat model, operational cost, and measurable success criteria.
+**Exit gate:** product owner accepts a separate proposal with an explicit
+product rationale, threat model, operational cost, and measurable success
+criteria. Do not describe the rationale as validated user demand.
 
 ## Deferred / out of current product scope
 

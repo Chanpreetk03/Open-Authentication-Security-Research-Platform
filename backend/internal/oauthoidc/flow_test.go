@@ -88,3 +88,43 @@ func TestUnsupportedScenarioIsRejected(t *testing.T) {
 		t.Fatalf("error = %v, want unsupported scenario", err)
 	}
 }
+
+func TestAuthorizationCodeFlowForProtectionsModelsAllCombinations(t *testing.T) {
+	tests := []struct {
+		name           string
+		stateEnabled   bool
+		pkceEnabled    bool
+		wantScenario   string
+		wantFindings   int
+		wantFinalEvent string
+	}{
+		{name: "state and PKCE", stateEnabled: true, pkceEnabled: true, wantScenario: ScenarioSecure, wantFinalEvent: "protected_resource_requested"},
+		{name: "state only", stateEnabled: true, pkceEnabled: false, wantScenario: ScenarioMissingPKCE, wantFindings: 1, wantFinalEvent: "protected_resource_requested"},
+		{name: "PKCE only", stateEnabled: false, pkceEnabled: true, wantScenario: ScenarioMissingState, wantFindings: 1, wantFinalEvent: "code_redemption_rejected"},
+		{name: "neither", stateEnabled: false, pkceEnabled: false, wantScenario: ScenarioMissingBoth, wantFindings: 2, wantFinalEvent: "protected_resource_requested"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			flow, err := NewAuthorizationCodeFlowForProtections(test.stateEnabled, test.pkceEnabled, testTime)
+			if err != nil {
+				t.Fatalf("create flow: %v", err)
+			}
+			if flow.Scenario.ID != test.wantScenario || len(flow.Findings) != test.wantFindings {
+				t.Fatalf("scenario=%q findings=%d, want scenario=%q findings=%d", flow.Scenario.ID, len(flow.Findings), test.wantScenario, test.wantFindings)
+			}
+			if got := flow.Events[len(flow.Events)-1].Type; got != test.wantFinalEvent {
+				t.Errorf("final event = %q, want %q", got, test.wantFinalEvent)
+			}
+			encoded := strings.Join(func() []string {
+				values := []string{}
+				for _, event := range flow.Events {
+					values = append(values, event.Parameters...)
+				}
+				return values
+			}(), " ")
+			if strings.Contains(encoded, "code=synthetic") || strings.Contains(encoded, "access_token=token") {
+				t.Errorf("flow contains an unredacted credential: %s", encoded)
+			}
+		})
+	}
+}

@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { JwtInspector } from "./components/JwtInspector";
 import { RequestInspector } from "./components/RequestInspector";
@@ -12,7 +12,7 @@ import { SamlRecipientLab } from "./components/SamlRecipientLab";
 import { SamlConditionsLab } from "./components/SamlConditionsLab";
 import { SamlSignatureBindingLab } from "./components/SamlSignatureBindingLab";
 import { SamlSubjectConfirmationLab } from "./components/SamlSubjectConfirmationLab";
-import { loadOAuthScenarios, runOAuthScenario, type ProtocolExchange, type ScenarioDescriptor } from "./protocols/oauth";
+import { runOAuthConfiguration, type ProtocolExchange } from "./protocols/oauth";
 import "./styles.css";
 
 function displayName(value: string) {
@@ -21,21 +21,13 @@ function displayName(value: string) {
 
 function App() {
   const [activeTool, setActiveTool] = useState<"oauth" | "jwt" | "http" | "academy" | "saml" | "metadata" | "saml-replay" | "saml-correlation" | "saml-audience" | "saml-recipient" | "saml-conditions" | "saml-signature-binding" | "saml-subject-confirmation">("oauth");
+  const toolButton = (tool: typeof activeTool, label: string) => <button type="button" aria-current={activeTool === tool ? "page" : undefined} onClick={() => setActiveTool(tool)}>{label}</button>;
   return <main className="studio-shell">
     <nav className="tool-switcher" aria-label="Protocol Studio tools">
-      <button type="button" aria-current={activeTool === "oauth" ? "page" : undefined} onClick={() => setActiveTool("oauth")}>OAuth flow</button>
-      <button type="button" aria-current={activeTool === "jwt" ? "page" : undefined} onClick={() => setActiveTool("jwt")}>JWT inspector</button>
-      <button type="button" aria-current={activeTool === "http" ? "page" : undefined} onClick={() => setActiveTool("http")}>Request inspector</button>
-      <button type="button" aria-current={activeTool === "academy" ? "page" : undefined} onClick={() => setActiveTool("academy")}>Academy</button>
-      <button type="button" aria-current={activeTool === "saml" ? "page" : undefined} onClick={() => setActiveTool("saml")}>SAML viewer</button>
-      <button type="button" aria-current={activeTool === "metadata" ? "page" : undefined} onClick={() => setActiveTool("metadata")}>SAML metadata</button>
-      <button type="button" aria-current={activeTool === "saml-replay" ? "page" : undefined} onClick={() => setActiveTool("saml-replay")}>SAML replay lab</button>
-      <button type="button" aria-current={activeTool === "saml-correlation" ? "page" : undefined} onClick={() => setActiveTool("saml-correlation")}>SAML request binding</button>
-      <button type="button" aria-current={activeTool === "saml-audience" ? "page" : undefined} onClick={() => setActiveTool("saml-audience")}>SAML audience</button>
-      <button type="button" aria-current={activeTool === "saml-recipient" ? "page" : undefined} onClick={() => setActiveTool("saml-recipient")}>SAML recipient</button>
-      <button type="button" aria-current={activeTool === "saml-conditions" ? "page" : undefined} onClick={() => setActiveTool("saml-conditions")}>SAML time conditions</button>
-      <button type="button" aria-current={activeTool === "saml-signature-binding" ? "page" : undefined} onClick={() => setActiveTool("saml-signature-binding")}>SAML signature binding</button>
-      <button type="button" aria-current={activeTool === "saml-subject-confirmation" ? "page" : undefined} onClick={() => setActiveTool("saml-subject-confirmation")}>SAML confirmation candidates</button>
+      <div className="tool-group" role="group" aria-label="Flows"><span>Flows</span>{toolButton("oauth", "OAuth flow")}</div>
+      <div className="tool-group" role="group" aria-label="Inspectors"><span>Inspect</span>{toolButton("jwt", "JWT inspector")}{toolButton("http", "Request inspector")}{toolButton("saml", "SAML viewer")}{toolButton("metadata", "SAML metadata")}</div>
+      <div className="tool-group" role="group" aria-label="Learning"><span>Learn</span>{toolButton("academy", "Academy")}</div>
+      <div className="tool-group" role="group" aria-label="SAML labs"><span>SAML labs</span>{toolButton("saml-replay", "Replay")}{toolButton("saml-correlation", "Request binding")}{toolButton("saml-audience", "Audience")}{toolButton("saml-recipient", "Recipient")}{toolButton("saml-conditions", "Time conditions")}{toolButton("saml-signature-binding", "Signature binding")}{toolButton("saml-subject-confirmation", "Confirmation candidates")}</div>
     </nav>
     {activeTool === "oauth" ? <OAuthExplorer /> : activeTool === "jwt" ? <JwtInspector /> : activeTool === "http" ? <RequestInspector /> : activeTool === "academy" ? <DefenseInDepthLesson /> : activeTool === "saml" ? <SamlAssertionViewer /> : activeTool === "metadata" ? <SamlMetadataInspector /> : activeTool === "saml-replay" ? <SamlReplayLab /> : activeTool === "saml-correlation" ? <SamlCorrelationLab /> : activeTool === "saml-audience" ? <SamlAudienceLab /> : activeTool === "saml-recipient" ? <SamlRecipientLab /> : activeTool === "saml-conditions" ? <SamlConditionsLab /> : activeTool === "saml-signature-binding" ? <SamlSignatureBindingLab /> : <SamlSubjectConfirmationLab />}
   </main>;
@@ -43,29 +35,17 @@ function App() {
 
 function OAuthExplorer() {
   const [flow, setFlow] = useState<ProtocolExchange | null>(null);
-  const [scenarios, setScenarios] = useState<ScenarioDescriptor[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState("secure");
+  const [stateEnabled, setStateEnabled] = useState(true);
+  const [pkceEnabled, setPkceEnabled] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadScenarios() {
-      try {
-        setScenarios(await loadOAuthScenarios());
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unable to load scenarios.");
-      }
-    }
-    void loadScenarios();
-  }, []);
-
   async function runFlow() {
     setLoading(true);
     setError("");
-    const scenarioId = selectedScenario;
     try {
-      const nextFlow = await runOAuthScenario(scenarioId);
+      const nextFlow = await runOAuthConfiguration({ stateEnabled, pkceEnabled });
       setFlow(nextFlow);
       setSelectedEvent(nextFlow.messages[0]?.sequence ?? null);
     } catch (err) {
@@ -81,29 +61,27 @@ function OAuthExplorer() {
     <header className="hero">
       <p className="eyebrow">Protocol Studio / OAuth 2.0</p>
       <h1>See the flow. Inspect the decision. Learn the defense.</h1>
-      <p className="intro">Choose a safe simulation, then select an exchange to see what happened and why the security property matters.</p>
+      <p className="intro">Choose protections for a local synthetic simulation, then inspect what happened and what the trace demonstrates.</p>
 
-      <div className="scenario-picker" aria-label="OAuth teaching scenarios">
-        {scenarios.map((scenario) => <button
-          className={`scenario ${selectedScenario === scenario.id ? "selected" : ""}`}
-          key={scenario.id}
-          aria-pressed={selectedScenario === scenario.id}
-          disabled={loading}
-          onClick={() => {
-            setSelectedScenario(scenario.id);
+      <fieldset className="protection-controls" disabled={loading}>
+        <legend>Authorization flow protections</legend>
+        <label><input type="checkbox" checked={stateEnabled} onChange={(event) => {
+            setStateEnabled(event.target.checked);
             setFlow(null);
             setSelectedEvent(null);
-          }}
-          type="button"
-        >
-          <span>{scenario.secure ? "Reference" : "Failure simulation"}</span>
-          <strong>{scenario.name}</strong>
-          <small>{scenario.description}</small>
-        </button>)}
-      </div>
+            setError("");
+          }} /> Validate OAuth state against the browser session</label>
+        <label><input type="checkbox" checked={pkceEnabled} onChange={(event) => {
+            setPkceEnabled(event.target.checked);
+            setFlow(null);
+            setSelectedEvent(null);
+            setError("");
+          }} /> Require PKCE with S256</label>
+        <small>Both protections are enabled by default. Turning one off models a failure; all output is synthetic and no provider is contacted.</small>
+      </fieldset>
 
-      <button className="run-button" onClick={runFlow} disabled={loading || scenarios.length === 0} type="button">
-        {loading ? "Running flow..." : "Run selected flow"}
+      <button className="run-button" onClick={runFlow} disabled={loading} type="button">
+        {loading ? "Running flow..." : "Run configured flow"}
       </button>
       {error && <p className="error">{error} Start the Go API with <code>go run ./cmd/server</code>.</p>}
     </header>
